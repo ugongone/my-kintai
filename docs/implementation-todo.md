@@ -71,15 +71,15 @@
 
 ---
 
-## フェーズ4: 共通レイアウト実装
+## フェーズ4: 共通レイアウト実装 ✅
 
 ### 4.1 ルートレイアウト
-- [ ] `src/app/layout.tsx` 更新
-  - フォント設定
+- [x] `src/app/layout.tsx` 更新
+  - フォント設定（Noto Sans JP）
   - メタデータ設定
 
 ### 4.2 サイドバー
-- [ ] `src/components/layout/Sidebar.tsx` 作成
+- [x] `src/components/layout/Sidebar.tsx` 作成
   - ロゴエリア（Briefcase アイコン + "MyKintai"）
   - メニューリスト（打刻・ホーム / 月次実績 / 設定）
   - ユーザープロファイル表示
@@ -87,13 +87,15 @@
   - アクティブ状態のスタイリング
 
 ### 4.3 ヘッダー（モバイル用）
-- [ ] `src/components/layout/Header.tsx` 作成
+- [x] `src/components/layout/Header.tsx` 作成
   - ハンバーガーメニューボタン
   - 通知アイコン
 
 ### 4.4 レスポンシブ対応
-- [ ] モバイル用サイドバー（オーバーレイ形式）
-- [ ] サイドバー開閉状態管理
+- [x] `src/components/layout/AppLayout.tsx` 作成
+- [x] モバイル用サイドバー（オーバーレイ形式）
+- [x] サイドバー開閉状態管理
+- [x] 認証済みレイアウト作成（Route Groups使用）
 
 ---
 

@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 @theme {
+  /* Fonts */
+  --font-family-sans: var(--font-noto-sans-jp), system-ui, sans-serif;
+
   /* Primary colors */
   --color-primary: #2563eb; /* blue-600 */
   --color-primary-hover: #1d4ed8; /* blue-700 */
