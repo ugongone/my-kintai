@@ -7,7 +7,7 @@ CREATE TABLE public.time_entries (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   entry_type TEXT NOT NULL CHECK (entry_type IN ('work_start', 'work_end', 'break_start', 'break_end')),
-  timestamp TIMESTAMPTZ NOT NULL,
+  entry_time TIMESTAMPTZ NOT NULL,
   note TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -15,7 +15,7 @@ CREATE TABLE public.time_entries (
 
 -- インデックス作成
 CREATE INDEX idx_time_entries_user_id ON public.time_entries(user_id);
-CREATE INDEX idx_time_entries_timestamp ON public.time_entries(timestamp);
+CREATE INDEX idx_time_entries_entry_time ON public.time_entries(entry_time);
 
 -- ===============================================
 -- settings テーブル
@@ -23,7 +23,7 @@ CREATE INDEX idx_time_entries_timestamp ON public.time_entries(timestamp);
 CREATE TABLE public.settings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
-  hourly_wage INTEGER NOT NULL DEFAULT 1000,
+  hourly_rate INTEGER NOT NULL DEFAULT 1500,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
