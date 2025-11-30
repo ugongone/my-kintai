@@ -99,13 +99,13 @@
 
 ---
 
-## フェーズ5: ダッシュボード（打刻・ホーム）実装
+## フェーズ5: ダッシュボード（打刻・ホーム）実装 ✅
 
 ### 5.1 ページ作成
-- [ ] `src/app/page.tsx` 作成（ダッシュボード）
+- [x] `src/app/(authenticated)/page.tsx` 更新（ダッシュボード）
 
 ### 5.2 ステータスカード
-- [ ] `src/components/dashboard/StatusCard.tsx` 作成
+- [x] `src/components/dashboard/StatusCard.tsx` 作成
   - 現在時刻表示（リアルタイム更新）
   - 日付・曜日表示
   - ステータス表示（稼働外 / 稼働中 / 休憩中）
@@ -115,22 +115,26 @@
     - 休憩終了（Green）
 
 ### 5.3 手動打刻モーダル
-- [ ] `src/components/ui/Modal.tsx` 作成
-- [ ] `src/components/dashboard/ManualEntryModal.tsx` 作成
+- [x] `src/components/ui/Modal.tsx` 作成
+- [x] `src/components/dashboard/ManualEntryModal.tsx` 作成
   - 日付選択
   - 時刻選択
   - 打刻種別選択
   - 備考入力
 
 ### 5.4 実績サマリーカード
-- [ ] `src/components/dashboard/SummaryCard.tsx` 作成
+- [x] `src/components/dashboard/SummaryCard.tsx` 作成
   - 総稼働時間表示
   - 概算報酬額表示（時給 × 稼働時間）
 
 ### 5.5 直近の稼働テーブル
-- [ ] `src/components/dashboard/RecentHistory.tsx` 作成
-  - 直近3件の稼働表示
+- [x] `src/components/dashboard/RecentHistory.tsx` 作成
+  - 直近の稼働表示
   - 「すべて見る」リンク
+
+### 5.6 共通UIコンポーネント
+- [x] `src/components/ui/Button.tsx` 作成
+- [x] `src/components/ui/Badge.tsx` 作成
 
 ---
 
