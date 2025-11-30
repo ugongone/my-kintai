@@ -138,28 +138,42 @@
 
 ---
 
-## フェーズ6: 打刻データ管理
+## フェーズ6: 打刻データ管理 ✅
 
 ### 6.1 型定義
-- [ ] `src/types/database.ts` 作成
+- [x] `src/types/database.ts` 作成（フェーズ3で完了）
   - TimeEntry 型
   - Settings 型
   - EntryType 型（work_start, work_end, break_start, break_end）
 
 ### 6.2 打刻フック
-- [ ] `src/hooks/useTimeEntries.ts` 作成
+- [x] `src/hooks/useTimeEntries.ts` 作成
   - 今月の打刻一覧取得
   - 打刻登録
   - 打刻更新
   - 打刻削除
 
-### 6.3 ステータス計算ロジック
-- [ ] `src/lib/utils/workStatus.ts` 作成
+### 6.3 設定フック
+- [x] `src/hooks/useSettings.ts` 作成
+  - 時給設定の取得・更新
+  - 初回アクセス時のデフォルト設定作成
+
+### 6.4 ステータス計算ロジック
+- [x] `src/lib/utils/workStatus.ts` 作成
   - 最新の打刻から現在のステータスを計算
   - 稼働時間計算
+  - 月次統計計算
 
-### 6.4 Server Actions（オプション）
-- [ ] `src/app/actions/timeEntry.ts` 作成
+### 6.5 ダッシュボード統合
+- [x] `src/app/(authenticated)/page.tsx` 更新
+  - データフックとの統合
+  - 打刻処理の実装
+  - 手動打刻の実装
+
+### 6.6 設定ページ
+- [x] `src/app/(authenticated)/settings/page.tsx` 更新
+  - 時給設定フォーム
+  - 更新処理の実装
 
 ---
 
