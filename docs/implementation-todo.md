@@ -46,25 +46,26 @@
 
 ---
 
-## フェーズ3: 認証機能実装
+## フェーズ3: 認証機能実装 ✅
 
 ### 3.1 Supabase クライアント設定
-- [ ] `src/lib/supabase/client.ts` 作成（ブラウザ用）
-- [ ] `src/lib/supabase/server.ts` 作成（サーバー用）
+- [x] `src/lib/supabase/client.ts` 作成（ブラウザ用）
+- [x] `src/lib/supabase/server.ts` 作成（サーバー用）
 
 ### 3.2 認証ページ
-- [ ] `src/app/login/page.tsx` 作成
+- [x] `src/app/login/page.tsx` 作成
   - Googleログインボタン
   - アプリロゴ・説明
-- [ ] `src/app/auth/callback/route.ts` 作成
+- [x] `src/app/auth/login/route.ts` 作成（ログイン処理）
+- [x] `src/app/auth/callback/route.ts` 作成
 
 ### 3.3 認証ミドルウェア
-- [ ] `src/middleware.ts` 作成
+- [x] `src/middleware.ts` 作成
   - 未認証ユーザーを `/login` へリダイレクト
   - セッション更新処理
 
 ### 3.4 認証フック
-- [ ] `src/hooks/useAuth.ts` 作成
+- [x] `src/hooks/useAuth.ts` 作成
   - ユーザー情報取得
   - ログアウト処理
 
