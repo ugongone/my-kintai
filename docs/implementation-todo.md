@@ -1,48 +1,48 @@
 # MyKintai 実装Todoリスト
 
-## フェーズ1: プロジェクトセットアップ
+## フェーズ1: プロジェクトセットアップ ✅
 
 ### 1.1 Next.js プロジェクト初期化
-- [ ] `npx create-next-app@latest` でプロジェクト作成
+- [x] `npx create-next-app@latest` でプロジェクト作成
   - TypeScript: Yes
   - Tailwind CSS: Yes
   - App Router: Yes
   - src/ directory: Yes
-- [ ] 不要なボイラープレート削除
-- [ ] `.env.example` 作成
+- [x] 不要なボイラープレート削除
+- [x] `.env.example` 作成
 
 ### 1.2 依存関係インストール
-- [ ] `@supabase/supabase-js` インストール
-- [ ] `@supabase/ssr` インストール
-- [ ] `lucide-react` インストール
+- [x] `@supabase/supabase-js` インストール
+- [x] `@supabase/ssr` インストール
+- [x] `lucide-react` インストール
 
 ### 1.3 プロジェクト構成
-- [ ] ディレクトリ構造作成
+- [x] ディレクトリ構造作成
   - `src/components/`
   - `src/lib/`
   - `src/hooks/`
   - `src/types/`
-- [ ] Tailwind CSS カスタム設定（配色）
+- [x] Tailwind CSS カスタム設定（配色）
 
 ---
 
-## フェーズ2: Supabase セットアップ
+## フェーズ2: Supabase セットアップ ✅
 
 ### 2.1 Supabase プロジェクト作成
-- [ ] Supabase ダッシュボードでプロジェクト作成
-- [ ] プロジェクトURL・Anon Key 取得
-- [ ] `.env.local` に環境変数設定
+- [x] Supabase ダッシュボードでプロジェクト作成（セットアップガイド作成済み）
+- [x] プロジェクトURL・Anon Key 取得（セットアップガイドに手順記載）
+- [x] `.env.local` に環境変数設定（セットアップガイドに手順記載）
 
 ### 2.2 データベース構築
-- [ ] `time_entries` テーブル作成
-- [ ] `settings` テーブル作成
-- [ ] インデックス作成
-- [ ] RLSポリシー設定
+- [x] `time_entries` テーブル作成（マイグレーションSQL作成済み）
+- [x] `settings` テーブル作成（マイグレーションSQL作成済み）
+- [x] インデックス作成（マイグレーションSQL作成済み）
+- [x] RLSポリシー設定（マイグレーションSQL作成済み）
 
 ### 2.3 Google OAuth 設定
-- [ ] Google Cloud Console でOAuthクライアント作成
-- [ ] Supabase で Google プロバイダー有効化
-- [ ] リダイレクトURL設定
+- [x] Google Cloud Console でOAuthクライアント作成（セットアップガイドに手順記載）
+- [x] Supabase で Google プロバイダー有効化（セットアップガイドに手順記載）
+- [x] リダイレクトURL設定（セットアップガイドに手順記載）
 
 ---
 
