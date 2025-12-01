@@ -5,7 +5,7 @@ import { useAuth } from './useAuth'
 import { useState, useEffect } from 'react'
 import type { TimeEntry, EntryType } from '@/types/database'
 
-export function useTimeEntries() {
+export function useTimeEntries(year?: number, month?: number) {
   const { user } = useAuth()
   const supabase = createClient()
   const [entries, setEntries] = useState<TimeEntry[]>([])
@@ -15,8 +15,11 @@ export function useTimeEntries() {
     if (!user) return
 
     const now = new Date()
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    const targetYear = year ?? now.getFullYear()
+    const targetMonth = month ?? now.getMonth()
+
+    const firstDay = new Date(targetYear, targetMonth, 1)
+    const lastDay = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999)
 
     const { data, error } = await supabase
       .from('time_entries')
@@ -37,7 +40,7 @@ export function useTimeEntries() {
 
   useEffect(() => {
     fetchEntries()
-  }, [user])
+  }, [user, year, month])
 
   const addEntry = async (entryType: EntryType, entryTime?: Date, note?: string) => {
     if (!user) return
