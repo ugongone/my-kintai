@@ -177,57 +177,66 @@
 
 ---
 
-## フェーズ7: 月次実績ページ実装
+## フェーズ7: 月次実績ページ実装 ✅
 
 ### 7.1 ページ作成
-- [ ] `src/app/history/page.tsx` 作成
+- [x] `src/app/(authenticated)/history/page.tsx` 実装
 
 ### 7.2 履歴テーブル
-- [ ] `src/components/history/HistoryTable.tsx` 作成
+- [x] `src/components/history/HistoryTable.tsx` 作成
   - 日付
   - ステータス（Badge）
   - 開始時刻
   - 終了時刻
   - 休憩時間
   - 実働時間
-  - 備考
 
 ### 7.3 月選択UI
-- [ ] 前月・次月ナビゲーション
-- [ ] 現在表示中の年月表示
+- [x] `src/components/history/MonthSelector.tsx` 作成
+- [x] 前月・次月ナビゲーション
+- [x] 現在表示中の年月表示
 
-### 7.4 CSV出力機能
-- [ ] CSVダウンロードボタン実装
+### 7.4 統計サマリー
+- [x] 総稼働時間表示
+- [x] 稼働日数表示
+- [x] 概算報酬額表示（総稼働時間 × 時給）
+
+### 7.5 CSV出力機能
+- [x] CSVダウンロードボタン実装（BOM付きUTF-8）
+
+### 7.6 その他実装
+- [x] `src/lib/utils/dailyStats.ts` 作成（日次統計計算）
+- [x] `src/hooks/useTimeEntries.ts` 拡張（年月指定取得）
 
 ---
 
-## フェーズ8: 設定ページ実装
+## フェーズ8: 設定ページ実装 ✅
 
 ### 8.1 ページ作成
-- [ ] `src/app/settings/page.tsx` 作成
+- [x] `src/app/(authenticated)/settings/page.tsx` 作成（フェーズ6で完了）
 
 ### 8.2 時給設定
-- [ ] 時給入力フォーム
-- [ ] 保存ボタン
-- [ ] 設定フック `src/hooks/useSettings.ts` 作成
+- [x] 現在の時給表示
+- [x] 時給入力フォーム
+- [x] 保存ボタン
+- [x] 設定フック `src/hooks/useSettings.ts` 作成（フェーズ6で完了）
 
 ---
 
-## フェーズ9: ユーティリティ
+## フェーズ9: ユーティリティ ✅
 
 ### 9.1 日付フォーマット
-- [ ] `src/lib/utils/date.ts` 作成
+- [x] `src/lib/utils/dailyStats.ts` 作成（フェーズ7で完了）
   - formatTime (HH:mm)
-  - formatDate (YYYY年MM月DD日 (曜日))
-  - formatDuration (H.h時間)
+  - formatMinutesToHours (H:mm)
 
 ### 9.2 金額フォーマット
-- [ ] `src/lib/utils/currency.ts` 作成
-  - formatCurrency (¥XX,XXX)
+- [x] toLocaleString()を使用（フェーズ5,7で完了）
 
 ### 9.3 共通UIコンポーネント
-- [ ] `src/components/ui/Button.tsx` 作成
-- [ ] `src/components/ui/Badge.tsx` 作成
+- [x] `src/components/ui/Button.tsx` 作成（フェーズ5で完了）
+- [x] `src/components/ui/Badge.tsx` 作成（フェーズ5で完了）
+- [x] `src/components/ui/Modal.tsx` 作成（フェーズ5で完了）
 
 ---
 
