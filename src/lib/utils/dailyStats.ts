@@ -15,8 +15,7 @@ export function calculateDailyStats(entries: TimeEntry[]): DailyStat[] {
   const dailyMap = new Map<string, TimeEntry[]>()
 
   entries.forEach((entry) => {
-    const date = new Date(entry.entry_time)
-    const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    const dateKey = entry.work_date
 
     if (!dailyMap.has(dateKey)) {
       dailyMap.set(dateKey, [])

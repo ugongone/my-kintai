@@ -5,6 +5,7 @@ export type TimeEntry = {
   user_id: string
   entry_type: EntryType
   entry_time: string
+  work_date: string
   note?: string
   created_at: string
   updated_at: string

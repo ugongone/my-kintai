@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useAuth } from './useAuth'
 import { useState, useEffect } from 'react'
 import type { TimeEntry, EntryType } from '@/types/database'
+import { calculateWorkDate } from '@/lib/utils/workDate'
 
 export function useTimeEntries(year?: number, month?: number) {
   const { user } = useAuth()
@@ -46,6 +47,7 @@ export function useTimeEntries(year?: number, month?: number) {
     if (!user) return
 
     const time = entryTime || new Date()
+    const workDate = calculateWorkDate(time)
 
     const { data, error } = await supabase
       .from('time_entries')
@@ -53,6 +55,7 @@ export function useTimeEntries(year?: number, month?: number) {
         user_id: user.id,
         entry_type: entryType,
         entry_time: time.toISOString(),
+        work_date: workDate,
         note,
       })
       .select()
@@ -68,6 +71,12 @@ export function useTimeEntries(year?: number, month?: number) {
   }
 
   const updateEntry = async (id: string, updates: Partial<TimeEntry>) => {
+    // entry_timeが更新される場合はwork_dateも再計算
+    if (updates.entry_time) {
+      const newTime = new Date(updates.entry_time)
+      updates.work_date = calculateWorkDate(newTime)
+    }
+
     const { error } = await supabase
       .from('time_entries')
       .update(updates)

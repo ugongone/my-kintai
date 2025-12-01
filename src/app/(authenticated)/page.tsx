@@ -8,6 +8,8 @@ import { RecentHistory } from '@/components/dashboard/RecentHistory'
 import { useTimeEntries } from '@/hooks/useTimeEntries'
 import { useSettings } from '@/hooks/useSettings'
 import { getCurrentStatus, getLastEntryTime, calculateMonthlyStats } from '@/lib/utils/workStatus'
+import { validateNewEntry } from '@/lib/utils/validation'
+import type { EntryType } from '@/types/database'
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -34,6 +36,22 @@ export default function Home() {
 
   const handlePunchIn = async () => {
     try {
+      const errors = validateNewEntry('work_start', new Date(), entries)
+      const criticalErrors = errors.filter(e => e.severity === 'error')
+
+      if (criticalErrors.length > 0) {
+        alert(criticalErrors.map(e => e.message).join('\n'))
+        return
+      }
+
+      const warnings = errors.filter(e => e.severity === 'warning')
+      if (warnings.length > 0) {
+        const confirmed = confirm(
+          warnings.map(e => e.message).join('\n') + '\n\n続行しますか？'
+        )
+        if (!confirmed) return
+      }
+
       await addEntry('work_start')
     } catch (error) {
       console.error('打刻エラー:', error)
@@ -43,6 +61,22 @@ export default function Home() {
 
   const handlePunchOut = async () => {
     try {
+      const errors = validateNewEntry('work_end', new Date(), entries)
+      const criticalErrors = errors.filter(e => e.severity === 'error')
+
+      if (criticalErrors.length > 0) {
+        alert(criticalErrors.map(e => e.message).join('\n'))
+        return
+      }
+
+      const warnings = errors.filter(e => e.severity === 'warning')
+      if (warnings.length > 0) {
+        const confirmed = confirm(
+          warnings.map(e => e.message).join('\n') + '\n\n続行しますか？'
+        )
+        if (!confirmed) return
+      }
+
       await addEntry('work_end')
     } catch (error) {
       console.error('打刻エラー:', error)
@@ -52,6 +86,22 @@ export default function Home() {
 
   const handleBreakStart = async () => {
     try {
+      const errors = validateNewEntry('break_start', new Date(), entries)
+      const criticalErrors = errors.filter(e => e.severity === 'error')
+
+      if (criticalErrors.length > 0) {
+        alert(criticalErrors.map(e => e.message).join('\n'))
+        return
+      }
+
+      const warnings = errors.filter(e => e.severity === 'warning')
+      if (warnings.length > 0) {
+        const confirmed = confirm(
+          warnings.map(e => e.message).join('\n') + '\n\n続行しますか？'
+        )
+        if (!confirmed) return
+      }
+
       await addEntry('break_start')
     } catch (error) {
       console.error('打刻エラー:', error)
@@ -61,6 +111,22 @@ export default function Home() {
 
   const handleBreakEnd = async () => {
     try {
+      const errors = validateNewEntry('break_end', new Date(), entries)
+      const criticalErrors = errors.filter(e => e.severity === 'error')
+
+      if (criticalErrors.length > 0) {
+        alert(criticalErrors.map(e => e.message).join('\n'))
+        return
+      }
+
+      const warnings = errors.filter(e => e.severity === 'warning')
+      if (warnings.length > 0) {
+        const confirmed = confirm(
+          warnings.map(e => e.message).join('\n') + '\n\n続行しますか？'
+        )
+        if (!confirmed) return
+      }
+
       await addEntry('break_end')
     } catch (error) {
       console.error('打刻エラー:', error)
@@ -76,6 +142,15 @@ export default function Home() {
   }) => {
     try {
       const entryTime = new Date(`${data.date}T${data.time}`)
+
+      const errors = validateNewEntry(data.entryType as EntryType, entryTime, entries)
+      const criticalErrors = errors.filter(e => e.severity === 'error')
+
+      if (criticalErrors.length > 0) {
+        alert(criticalErrors.map(e => e.message).join('\n'))
+        return
+      }
+
       await addEntry(data.entryType as any, entryTime, data.note)
     } catch (error) {
       console.error('手動打刻エラー:', error)
