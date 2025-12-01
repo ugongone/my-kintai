@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import type { EntryType } from '@/types/database'
@@ -14,12 +14,22 @@ interface ManualEntryModalProps {
     entryType: EntryType
     note?: string
   }) => void
+  mode?: 'create' | 'edit'
+  initialData?: {
+    id: string
+    date: string
+    time: string
+    entryType: EntryType
+    note?: string
+  }
 }
 
 export function ManualEntryModal({
   isOpen,
   onClose,
   onSubmit,
+  mode = 'create',
+  initialData,
 }: ManualEntryModalProps) {
   const [date, setDate] = useState(() => {
     const today = new Date()
@@ -32,6 +42,15 @@ export function ManualEntryModal({
   const [entryType, setEntryType] = useState<EntryType>('work_start')
   const [note, setNote] = useState('')
 
+  useEffect(() => {
+    if (mode === 'edit' && initialData) {
+      setDate(initialData.date)
+      setTime(initialData.time)
+      setEntryType(initialData.entryType)
+      setNote(initialData.note || '')
+    }
+  }, [mode, initialData])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     onSubmit({ date, time, entryType, note: note || undefined })
@@ -40,7 +59,7 @@ export function ManualEntryModal({
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="手動打刻">
+    <Modal isOpen={isOpen} onClose={onClose} title={mode === 'edit' ? '打刻を編集' : '手動打刻'}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -103,7 +122,7 @@ export function ManualEntryModal({
             キャンセル
           </Button>
           <Button type="submit" variant="primary" fullWidth>
-            登録
+            {mode === 'edit' ? '更新' : '登録'}
           </Button>
         </div>
       </form>

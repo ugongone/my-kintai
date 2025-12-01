@@ -8,15 +8,23 @@ import { HistoryTable } from '@/components/history/HistoryTable'
 import { calculateDailyStats } from '@/lib/utils/dailyStats'
 import { Download } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { ManualEntryModal } from '@/components/dashboard/ManualEntryModal'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import type { TimeEntry, EntryType } from '@/types/database'
 
 export default function HistoryPage() {
   const currentDate = new Date()
   const [year, setYear] = useState(currentDate.getFullYear())
   const [month, setMonth] = useState(currentDate.getMonth())
 
-  const { entries, loading } = useTimeEntries(year, month)
+  const { entries, loading, updateEntry, deleteEntry } = useTimeEntries(year, month)
   const { settings, loading: settingsLoading } = useSettings()
   const dailyStats = useMemo(() => calculateDailyStats(entries), [entries])
+
+  const [editingEntry, setEditingEntry] = useState<TimeEntry | null>(null)
+  const [deletingEntry, setDeletingEntry] = useState<TimeEntry | null>(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const totalWorkMinutes = dailyStats.reduce((sum, stat) => sum + stat.workMinutes, 0)
   const totalWorkHours = totalWorkMinutes / 60
@@ -41,6 +49,59 @@ export default function HistoryPage() {
       setMonth(0)
     } else {
       setMonth(month + 1)
+    }
+  }
+
+  const getEntryTypeLabel = (type: EntryType): string => {
+    switch (type) {
+      case 'work_start': return '業務開始'
+      case 'work_end': return '業務終了'
+      case 'break_start': return '休憩開始'
+      case 'break_end': return '休憩終了'
+    }
+  }
+
+  const handleEditEntry = (entry: TimeEntry) => {
+    setEditingEntry(entry)
+    setIsEditModalOpen(true)
+  }
+
+  const handleUpdateEntry = async (data: {
+    date: string
+    time: string
+    entryType: EntryType
+    note?: string
+  }) => {
+    if (!editingEntry) return
+    try {
+      const entryTime = new Date(`${data.date}T${data.time}`)
+      await updateEntry(editingEntry.id, {
+        entry_type: data.entryType,
+        entry_time: entryTime.toISOString(),
+        note: data.note || undefined,
+      })
+      setIsEditModalOpen(false)
+      setEditingEntry(null)
+    } catch (error) {
+      console.error('更新エラー:', error)
+      alert('打刻の更新に失敗しました')
+    }
+  }
+
+  const handleDeleteClick = (entry: TimeEntry) => {
+    setDeletingEntry(entry)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingEntry) return
+    try {
+      await deleteEntry(deletingEntry.id)
+      setIsDeleteDialogOpen(false)
+      setDeletingEntry(null)
+    } catch (error) {
+      console.error('削除エラー:', error)
+      alert('打刻の削除に失敗しました')
     }
   }
 
@@ -124,7 +185,42 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      <HistoryTable stats={dailyStats} />
+      <HistoryTable
+        stats={dailyStats}
+        onEditEntry={handleEditEntry}
+        onDeleteEntry={handleDeleteClick}
+      />
+
+      <ManualEntryModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false)
+          setEditingEntry(null)
+        }}
+        onSubmit={handleUpdateEntry}
+        mode="edit"
+        initialData={editingEntry ? {
+          id: editingEntry.id,
+          date: new Date(editingEntry.entry_time).toISOString().split('T')[0],
+          time: new Date(editingEntry.entry_time).toTimeString().slice(0, 5),
+          entryType: editingEntry.entry_type,
+          note: editingEntry.note || '',
+        } : undefined}
+      />
+
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false)
+          setDeletingEntry(null)
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="打刻を削除"
+        message={deletingEntry ? `${getEntryTypeLabel(deletingEntry.entry_type)}の打刻を削除してもよろしいですか？` : ''}
+        variant="danger"
+        confirmText="削除"
+        cancelText="キャンセル"
+      />
     </div>
   )
 }
