@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useTimeEntries } from '@/hooks/useTimeEntries'
+import { useSettings } from '@/hooks/useSettings'
 import { MonthSelector } from '@/components/history/MonthSelector'
 import { HistoryTable } from '@/components/history/HistoryTable'
 import { calculateDailyStats } from '@/lib/utils/dailyStats'
@@ -14,10 +15,12 @@ export default function HistoryPage() {
   const [month, setMonth] = useState(currentDate.getMonth())
 
   const { entries, loading } = useTimeEntries(year, month)
+  const { settings, loading: settingsLoading } = useSettings()
   const dailyStats = useMemo(() => calculateDailyStats(entries), [entries])
 
   const totalWorkMinutes = dailyStats.reduce((sum, stat) => sum + stat.workMinutes, 0)
   const totalWorkHours = totalWorkMinutes / 60
+  const estimatedPayment = settings ? (totalWorkHours * settings.hourly_rate) : 0
 
   const handlePrevMonth = () => {
     if (month === 0) {
@@ -68,7 +71,7 @@ export default function HistoryPage() {
     URL.revokeObjectURL(url)
   }
 
-  if (loading) {
+  if (loading || settingsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-gray-500">読み込み中...</div>
@@ -99,7 +102,7 @@ export default function HistoryPage() {
       />
 
       <div className="bg-white rounded-lg shadow p-6">
-        <div className="grid grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-3 gap-4 md:gap-6">
           <div>
             <p className="text-sm text-gray-600 mb-1">総稼働時間</p>
             <p className="text-2xl font-bold text-gray-900">
@@ -110,6 +113,12 @@ export default function HistoryPage() {
             <p className="text-sm text-gray-600 mb-1">稼働日数</p>
             <p className="text-2xl font-bold text-gray-900">
               {dailyStats.filter(s => s.workMinutes > 0).length}日
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600 mb-1">概算報酬額</p>
+            <p className="text-2xl font-bold text-gray-900">
+              ¥{estimatedPayment.toLocaleString()}
             </p>
           </div>
         </div>
