@@ -7,7 +7,6 @@ export type DailyStat = {
   workEnd?: string
   breakMinutes: number
   workMinutes: number
-  status: 'complete' | 'in_progress' | 'no_data'
   entries: TimeEntry[]
 }
 
@@ -120,15 +119,6 @@ export function calculateDailyStats(entries: TimeEntry[]): DailyStat[] {
     const date = new Date(dateKey)
     const dateStr = `${date.getMonth() + 1}/${date.getDate()}`
 
-    let status: DailyStat['status'] = 'no_data'
-    if (sessions.length > 0) {
-      if (sessions.some(s => s.workEnd === null)) {
-        status = 'in_progress'
-      } else {
-        status = 'complete'
-      }
-    }
-
     stats.push({
       date: dateKey,
       dateStr,
@@ -136,7 +126,6 @@ export function calculateDailyStats(entries: TimeEntry[]): DailyStat[] {
       workEnd: workEnd ? formatTime(workEnd) : undefined,
       breakMinutes: Math.round(totalBreakMinutes),
       workMinutes: Math.round(totalWorkMinutes),
-      status,
       entries: sortedEntries,
     })
   })

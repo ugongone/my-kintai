@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/Badge'
 type WorkEntry = {
   id: string
   date: string
-  status: 'completed' | 'in-progress'
   startTime: string
   endTime?: string
   breakTime: number
@@ -46,7 +45,6 @@ export function RecentHistory({ entries }: RecentHistoryProps) {
             <thead className="bg-slate-50 text-slate-500">
               <tr>
                 <th className="px-6 py-3 font-medium">日付</th>
-                <th className="px-6 py-3 font-medium">ステータス</th>
                 <th className="px-6 py-3 font-medium">開始</th>
                 <th className="px-6 py-3 font-medium">終了</th>
                 <th className="px-6 py-3 font-medium">実働時間</th>
@@ -57,11 +55,6 @@ export function RecentHistory({ entries }: RecentHistoryProps) {
                 <tr key={entry.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 font-medium text-slate-800">
                     {entry.date}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">
-                      {entry.status === 'completed' ? '稼働' : '稼働中'}
-                    </span>
                   </td>
                   <td className="px-6 py-4 text-slate-600">
                     {formatTime(entry.startTime)}

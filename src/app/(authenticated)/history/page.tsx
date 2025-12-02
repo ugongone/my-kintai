@@ -124,10 +124,9 @@ export default function HistoryPage() {
   const handleExportCSV = () => {
     if (dailyStats.length === 0) return
 
-    const headers = ['日付', 'ステータス', '開始時刻', '終了時刻', '休憩時間', '実働時間']
+    const headers = ['日付', '開始時刻', '終了時刻', '休憩時間', '実働時間']
     const rows = dailyStats.map((stat) => [
       stat.date,
-      stat.status === 'complete' ? '完了' : stat.status === 'in_progress' ? '稼働中' : 'データなし',
       stat.workStart || '-',
       stat.workEnd || '-',
       stat.breakMinutes > 0 ? `${Math.floor(stat.breakMinutes / 60)}:${String(stat.breakMinutes % 60).padStart(2, '0')}` : '-',

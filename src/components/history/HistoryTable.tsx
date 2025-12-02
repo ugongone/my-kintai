@@ -100,7 +100,6 @@ export function HistoryTable({
             <thead className="bg-slate-50 text-slate-500">
               <tr>
                 <th className="px-6 py-4 font-medium">日付</th>
-                <th className="px-6 py-4 font-medium">ステータス</th>
                 <th className="px-6 py-4 font-medium">開始</th>
                 <th className="px-6 py-4 font-medium">終了</th>
                 <th className="px-6 py-4 font-medium">休憩</th>
@@ -130,7 +129,6 @@ export function HistoryTable({
           <thead className="bg-slate-50 text-slate-500">
             <tr>
               <th className="px-6 py-4 font-medium">日付</th>
-              <th className="px-6 py-4 font-medium">ステータス</th>
               <th className="px-6 py-4 font-medium">開始</th>
               <th className="px-6 py-4 font-medium">終了</th>
               <th className="px-6 py-4 font-medium">休憩</th>
@@ -166,19 +164,6 @@ export function HistoryTable({
                         {stat.dateStr}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {stat.status === 'complete' && (
-                        <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">
-                          稼働
-                        </span>
-                      )}
-                      {stat.status === 'in_progress' && (
-                        <Badge variant="warning">稼働中</Badge>
-                      )}
-                      {stat.status === 'no_data' && (
-                        <Badge variant="default">データなし</Badge>
-                      )}
-                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-slate-600">
                       {stat.workStart || '-'}
                     </td>
@@ -196,7 +181,7 @@ export function HistoryTable({
                   </tr>
                   {isExpanded && stat.entries.length > 0 && (
                     <tr>
-                      <td colSpan={isAddingEntry ? 8 : 6} className="px-6 py-2 bg-slate-50">
+                      <td colSpan={isAddingEntry ? 7 : 5} className="px-6 py-2 bg-slate-50">
                         <div className="space-y-1">
                           {stat.entries.map((entry) => {
                             const entryTime = new Date(entry.entry_time)

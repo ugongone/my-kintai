@@ -89,9 +89,6 @@ export function AddEntryRow({ year, month, onSave, onCancel }: AddEntryRowProps)
         />
       </td>
       <td className="px-6 py-3">
-        <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">稼働</span>
-      </td>
-      <td className="px-6 py-3">
         <input
           type="time"
           value={startTime}
