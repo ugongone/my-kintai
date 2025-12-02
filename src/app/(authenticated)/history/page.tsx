@@ -17,7 +17,7 @@ export default function HistoryPage() {
   const [year, setYear] = useState(currentDate.getFullYear())
   const [month, setMonth] = useState(currentDate.getMonth())
 
-  const { entries, loading, updateEntry, deleteEntry } = useTimeEntries(year, month)
+  const { entries, loading, updateEntry, deleteEntry, addMultipleEntries } = useTimeEntries(year, month)
   const { settings, loading: settingsLoading } = useSettings()
   const dailyStats = useMemo(() => calculateDailyStats(entries), [entries])
 
@@ -105,6 +105,21 @@ export default function HistoryPage() {
     }
   }
 
+  const handleAddEntry = async (data: {
+    date: string
+    startTime: string
+    endTime: string
+    breakStartTime?: string
+    breakEndTime?: string
+  }) => {
+    try {
+      await addMultipleEntries(data)
+    } catch (error) {
+      console.error('追加エラー:', error)
+      alert('打刻の追加に失敗しました')
+    }
+  }
+
   const handleExportCSV = () => {
     if (dailyStats.length === 0) return
 
@@ -187,8 +202,11 @@ export default function HistoryPage() {
 
       <HistoryTable
         stats={dailyStats}
+        year={year}
+        month={month}
         onEditEntry={handleEditEntry}
         onDeleteEntry={handleDeleteClick}
+        onAddEntry={handleAddEntry}
       />
 
       <ManualEntryModal

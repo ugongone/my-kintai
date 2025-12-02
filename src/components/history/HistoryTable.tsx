@@ -4,16 +4,27 @@ import React, { useState } from 'react'
 import { Badge } from '@/components/ui/Badge'
 import { formatMinutesToHours, type DailyStat } from '@/lib/utils/dailyStats'
 import type { TimeEntry } from '@/types/database'
-import { ChevronDown, ChevronRight, Pencil, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronRight, Pencil, Trash2, Plus } from 'lucide-react'
+import { AddEntryRow } from './AddEntryRow'
 
 type HistoryTableProps = {
   stats: DailyStat[]
+  year: number
+  month: number
   onEditEntry: (entry: TimeEntry) => void
   onDeleteEntry: (entry: TimeEntry) => void
+  onAddEntry: (data: {
+    date: string
+    startTime: string
+    endTime: string
+    breakStartTime?: string
+    breakEndTime?: string
+  }) => void
 }
 
-export function HistoryTable({ stats, onEditEntry, onDeleteEntry }: HistoryTableProps) {
+export function HistoryTable({ stats, year, month, onEditEntry, onDeleteEntry, onAddEntry }: HistoryTableProps) {
   const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set())
+  const [isAddingEntry, setIsAddingEntry] = useState(false)
 
   const toggleExpand = (date: string) => {
     const newExpanded = new Set(expandedDates)
@@ -45,16 +56,68 @@ export function HistoryTable({ stats, onEditEntry, onDeleteEntry }: HistoryTable
     }
   }
 
-  if (stats.length === 0) {
+  const handleAddEntry = (data: {
+    date: string
+    startTime: string
+    endTime: string
+    breakStartTime?: string
+    breakEndTime?: string
+  }) => {
+    onAddEntry(data)
+    setIsAddingEntry(false)
+  }
+
+  if (stats.length === 0 && !isAddingEntry) {
     return (
-      <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-        この月の打刻データがありません
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="p-8 text-center text-gray-500">
+          この月の打刻データがありません
+        </div>
+        <div className="px-6 py-4 border-t border-gray-200">
+          <button
+            onClick={() => setIsAddingEntry(true)}
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            打刻を追加
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (stats.length === 0 && isAddingEntry) {
+    return (
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-gray-200">
+              <AddEntryRow
+                year={year}
+                month={month}
+                onSave={handleAddEntry}
+                onCancel={() => setIsAddingEntry(false)}
+              />
+            </tbody>
+          </table>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
+      {!isAddingEntry && (
+        <div className="px-6 py-4 border-b border-gray-200">
+          <button
+            onClick={() => setIsAddingEntry(true)}
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            打刻を追加
+          </button>
+        </div>
+      )}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -80,6 +143,14 @@ export function HistoryTable({ stats, onEditEntry, onDeleteEntry }: HistoryTable
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
+            {isAddingEntry && (
+              <AddEntryRow
+                year={year}
+                month={month}
+                onSave={handleAddEntry}
+                onCancel={() => setIsAddingEntry(false)}
+              />
+            )}
             {stats.map((stat) => {
               const isExpanded = expandedDates.has(stat.date)
               return (
