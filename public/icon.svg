@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- 背景 -->
+  <rect width="512" height="512" rx="96" fill="#2563eb"/>
+
+  <!-- 時計の外枠 -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="white" stroke-width="16"/>
+
+  <!-- 時計の目盛り（12時、3時、6時、9時） -->
+  <line x1="256" y1="92" x2="256" y2="120" stroke="white" stroke-width="12" stroke-linecap="round"/>
+  <line x1="420" y1="256" x2="392" y2="256" stroke="white" stroke-width="12" stroke-linecap="round"/>
+  <line x1="256" y1="420" x2="256" y2="392" stroke="white" stroke-width="12" stroke-linecap="round"/>
+  <line x1="92" y1="256" x2="120" y2="256" stroke="white" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- 短針（時針）- 10時方向 -->
+  <line x1="256" y1="256" x2="190" y2="170" stroke="white" stroke-width="16" stroke-linecap="round"/>
+
+  <!-- 長針（分針）- 2時方向 -->
+  <line x1="256" y1="256" x2="330" y2="150" stroke="white" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- 中心点 -->
+  <circle cx="256" cy="256" r="16" fill="white"/>
+</svg>
