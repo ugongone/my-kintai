@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans_JP } from 'next/font/google'
 import "./globals.css";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
 const notoSansJP = Noto_Sans_JP({
   subsets: ['latin'],
@@ -41,6 +42,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body className={`${notoSansJP.variable} font-sans antialiased`}>
+        <ServiceWorkerRegister />
         {children}
       </body>
     </html>
