@@ -77,7 +77,7 @@ export function ManualEntryModal({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
               時刻
@@ -121,7 +121,7 @@ export function ManualEntryModal({
           />
         </div>
 
-        <div className="pt-3 flex justify-end gap-3 border-t border-slate-100 -mx-6 px-6 pb-0 mt-6 bg-slate-50 -mb-6 py-5">
+        <div className="pt-3 flex justify-end gap-3 border-t border-slate-100 -mx-6 px-6 mt-6 bg-slate-50 -mb-6 py-5 pb-6">
           <button
             type="button"
             onClick={onClose}
