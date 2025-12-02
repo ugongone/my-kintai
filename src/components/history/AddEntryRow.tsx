@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/Button'
-import { Check, X } from 'lucide-react'
+import { Save, X } from 'lucide-react'
 
 type AddEntryRowProps = {
   year: number
@@ -75,74 +74,82 @@ export function AddEntryRow({ year, month, onSave, onCancel }: AddEntryRowProps)
     })
   }
 
+  const inputClass = "w-24 border border-blue-300 rounded px-2 py-1 text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
+
   return (
-    <tr className="bg-blue-50">
-      <td colSpan={6} className="px-6 py-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600 whitespace-nowrap">日付</label>
-            <input
-              type="date"
-              value={date}
-              min={formatDateForInput(firstDayOfMonth)}
-              max={formatDateForInput(maxDate)}
-              onChange={(e) => setDate(e.target.value)}
-              className="px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600 whitespace-nowrap">開始</label>
-            <input
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              className="px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600 whitespace-nowrap">終了</label>
-            <input
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              className="px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600 whitespace-nowrap">休憩開始</label>
-            <input
-              type="time"
-              value={breakStartTime}
-              onChange={(e) => setBreakStartTime(e.target.value)}
-              className="px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600 whitespace-nowrap">休憩終了</label>
-            <input
-              type="time"
-              value={breakEndTime}
-              onChange={(e) => setBreakEndTime(e.target.value)}
-              className="px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="success" onClick={handleSave} className="flex items-center gap-1 px-3 py-1.5">
-              <Check className="w-4 h-4" />
-              保存
-            </Button>
-            <button
-              onClick={onCancel}
-              className="p-1.5 text-gray-600 hover:bg-gray-200 rounded transition-colors"
-              title="キャンセル"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+    <tr className="bg-blue-50 animate-fade-in">
+      <td className="px-6 py-3">
+        <input
+          type="date"
+          value={date}
+          min={formatDateForInput(firstDayOfMonth)}
+          max={formatDateForInput(maxDate)}
+          onChange={(e) => setDate(e.target.value)}
+          className="w-32 border border-blue-300 rounded px-2 py-1 text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
+        />
+      </td>
+      <td className="px-6 py-3">
+        <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">稼働</span>
+      </td>
+      <td className="px-6 py-3">
+        <input
+          type="time"
+          value={startTime}
+          onChange={(e) => setStartTime(e.target.value)}
+          className={inputClass}
+        />
+      </td>
+      <td className="px-6 py-3">
+        <input
+          type="time"
+          value={endTime}
+          onChange={(e) => setEndTime(e.target.value)}
+          className={inputClass}
+        />
+      </td>
+      <td className="px-6 py-3">
+        <div className="flex flex-col gap-1">
+          <input
+            type="time"
+            value={breakStartTime}
+            onChange={(e) => setBreakStartTime(e.target.value)}
+            placeholder="開始"
+            className="w-20 border border-blue-300 rounded px-2 py-1 text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+          <input
+            type="time"
+            value={breakEndTime}
+            onChange={(e) => setBreakEndTime(e.target.value)}
+            placeholder="終了"
+            className="w-20 border border-blue-300 rounded px-2 py-1 text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
+          />
         </div>
+      </td>
+      <td className="px-6 py-3">
+        <span className="text-slate-400 text-xs">自動計算</span>
+      </td>
+      <td className="px-6 py-3">
         {error && (
-          <p className="mt-2 text-sm text-red-600">{error}</p>
+          <p className="text-xs text-red-600">{error}</p>
         )}
+      </td>
+      <td className="px-6 py-3">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleSave}
+            className="p-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            title="保存"
+          >
+            <Save size={14} />
+          </button>
+          <button
+            onClick={onCancel}
+            className="p-1.5 bg-white border border-slate-300 text-slate-500 rounded hover:bg-slate-50 transition-colors"
+            title="キャンセル"
+          >
+            <X size={14} />
+          </button>
+        </div>
       </td>
     </tr>
   )

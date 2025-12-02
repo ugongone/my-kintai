@@ -12,30 +12,28 @@ export function MonthSelector({ year, month, onPrevMonth, onNextMonth }: MonthSe
   const isCurrentMonth = year === currentDate.getFullYear() && month === currentDate.getMonth()
 
   return (
-    <div className="flex items-center justify-between bg-white rounded-lg shadow px-6 py-4">
+    <div className="flex items-center bg-slate-100 rounded-lg p-1">
       <button
         onClick={onPrevMonth}
-        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        className="p-2 hover:bg-white rounded-md transition-shadow hover:shadow-sm text-slate-500"
         aria-label="前月"
       >
-        <ChevronLeft className="w-5 h-5 text-gray-600" />
+        <ChevronLeft size={20} />
       </button>
-
-      <h2 className="text-xl font-bold text-gray-900">
-        {year}年{month + 1}月
-      </h2>
-
+      <span className="px-4 font-bold text-slate-700">
+        {year}年 {month + 1}月
+      </span>
       <button
         onClick={onNextMonth}
         disabled={isCurrentMonth}
-        className={`p-2 rounded-lg transition-colors ${
+        className={`p-2 rounded-md transition-shadow ${
           isCurrentMonth
-            ? 'text-gray-300 cursor-not-allowed'
-            : 'hover:bg-gray-100 text-gray-600'
+            ? 'text-slate-300 cursor-not-allowed'
+            : 'hover:bg-white hover:shadow-sm text-slate-500'
         }`}
         aria-label="次月"
       >
-        <ChevronRight className="w-5 h-5" />
+        <ChevronRight size={20} />
       </button>
     </div>
   )

@@ -6,8 +6,7 @@ import { useSettings } from '@/hooks/useSettings'
 import { MonthSelector } from '@/components/history/MonthSelector'
 import { HistoryTable } from '@/components/history/HistoryTable'
 import { calculateDailyStats } from '@/lib/utils/dailyStats'
-import { Download } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
+import { Calendar, Clock, JapaneseYen, Plus } from 'lucide-react'
 import { ManualEntryModal } from '@/components/dashboard/ManualEntryModal'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import type { TimeEntry, EntryType } from '@/types/database'
@@ -16,6 +15,7 @@ export default function HistoryPage() {
   const currentDate = new Date()
   const [year, setYear] = useState(currentDate.getFullYear())
   const [month, setMonth] = useState(currentDate.getMonth())
+  const [isAddingEntry, setIsAddingEntry] = useState(false)
 
   const { entries, loading, updateEntry, deleteEntry, addMultipleEntries } = useTimeEntries(year, month)
   const { settings, loading: settingsLoading } = useSettings()
@@ -114,6 +114,7 @@ export default function HistoryPage() {
   }) => {
     try {
       await addMultipleEntries(data)
+      setIsAddingEntry(false)
     } catch (error) {
       console.error('追加エラー:', error)
       alert('打刻の追加に失敗しました')
@@ -150,64 +151,90 @@ export default function HistoryPage() {
   if (loading || settingsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">読み込み中...</div>
+        <div className="text-slate-500">読み込み中...</div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">月次実績</h1>
-        <Button
-          variant="secondary"
-          onClick={handleExportCSV}
-          disabled={dailyStats.length === 0}
-          className="flex items-center gap-2"
-        >
-          <Download className="w-4 h-4" />
-          CSV出力
-        </Button>
-      </div>
-
-      <MonthSelector
-        year={year}
-        month={month}
-        onPrevMonth={handlePrevMonth}
-        onNextMonth={handleNextMonth}
-      />
-
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="grid grid-cols-3 gap-4 md:gap-6">
+    <div className="space-y-6 animate-fade-in">
+      {/* サマリーカード */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-600 mb-1">総稼働時間</p>
-            <p className="text-2xl font-bold text-gray-900">
-              {totalWorkHours.toFixed(1)}時間
-            </p>
+            <p className="text-slate-500 text-sm mb-1">総稼働時間</p>
+            <div className="flex items-end gap-2">
+              <span className="text-3xl font-bold text-slate-800 tracking-tight">
+                {totalWorkHours.toFixed(1)}
+              </span>
+              <span className="text-sm text-slate-400 font-medium mb-1">時間</span>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-600 mb-1">稼働日数</p>
-            <p className="text-2xl font-bold text-gray-900">
-              {dailyStats.filter(s => s.workMinutes > 0).length}日
-            </p>
+          <div className="bg-blue-50 p-3 rounded-full text-blue-600">
+            <Clock size={24} />
           </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-600 mb-1">概算報酬額</p>
-            <p className="text-2xl font-bold text-gray-900">
-              ¥{estimatedPayment.toLocaleString()}
-            </p>
+            <p className="text-slate-500 text-sm mb-1">概算報酬額</p>
+            <div className="flex items-end gap-2 text-blue-600">
+              <span className="text-3xl font-bold tracking-tight">
+                {estimatedPayment.toLocaleString()}
+              </span>
+              <span className="text-sm text-blue-400 font-medium mb-1">円</span>
+            </div>
+          </div>
+          <div className="bg-orange-50 p-3 rounded-full text-orange-600">
+            <JapaneseYen size={24} />
           </div>
         </div>
       </div>
 
-      <HistoryTable
-        stats={dailyStats}
-        year={year}
-        month={month}
-        onEditEntry={handleEditEntry}
-        onDeleteEntry={handleDeleteClick}
-        onAddEntry={handleAddEntry}
-      />
+      {/* テーブル */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100">
+        <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <Calendar className="text-blue-600" />
+            月次稼働実績
+          </h2>
+
+          <MonthSelector
+            year={year}
+            month={month}
+            onPrevMonth={handlePrevMonth}
+            onNextMonth={handleNextMonth}
+          />
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsAddingEntry(true)}
+              className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+            >
+              <Plus size={16} />
+              打刻を追加
+            </button>
+            <button
+              onClick={handleExportCSV}
+              disabled={dailyStats.length === 0}
+              className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              CSV出力
+            </button>
+          </div>
+        </div>
+
+        <HistoryTable
+          stats={dailyStats}
+          year={year}
+          month={month}
+          onEditEntry={handleEditEntry}
+          onDeleteEntry={handleDeleteClick}
+          onAddEntry={handleAddEntry}
+          isAddingEntry={isAddingEntry}
+          onCancelAdd={() => setIsAddingEntry(false)}
+        />
+      </div>
 
       <ManualEntryModal
         isOpen={isEditModalOpen}

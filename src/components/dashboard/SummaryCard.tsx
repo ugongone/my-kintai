@@ -1,47 +1,52 @@
-import { Clock, Coins } from 'lucide-react'
+import { TrendingUp, JapaneseYen } from 'lucide-react'
 
 interface SummaryCardProps {
   totalHours: number
   estimatedEarnings: number
+  hourlyRate?: number
 }
 
-export function SummaryCard({ totalHours, estimatedEarnings }: SummaryCardProps) {
-  const formatHours = (hours: number) => {
-    return hours.toFixed(1)
-  }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('ja-JP', {
-      style: 'currency',
-      currency: 'JPY',
-    }).format(amount)
-  }
-
+export function SummaryCard({ totalHours, estimatedEarnings, hourlyRate = 0 }: SummaryCardProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="bg-blue-100 p-2 rounded-lg">
-            <Clock className="w-5 h-5 text-blue-600" />
+    <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 h-full flex flex-col justify-center">
+      <h3 className="text-sm font-medium text-slate-500 mb-6 flex items-center gap-2">
+        <TrendingUp size={16} />
+        今月の実績サマリー
+      </h3>
+      <div className="space-y-8">
+        {/* 総稼働時間 */}
+        <div>
+          <div className="text-slate-500 text-sm mb-1">総稼働時間</div>
+          <div className="flex items-end gap-2">
+            <span className="text-4xl font-bold text-slate-800 tracking-tight">
+              {totalHours.toFixed(1)}
+            </span>
+            <span className="text-lg text-slate-400 font-medium mb-1">時間</span>
           </div>
-          <h3 className="text-sm font-medium text-gray-600">今月の総稼働時間</h3>
         </div>
-        <p className="text-3xl font-bold text-gray-900">
-          {formatHours(totalHours)}
-          <span className="text-lg font-normal text-gray-600 ml-1">時間</span>
-        </p>
-      </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="bg-green-100 p-2 rounded-lg">
-            <Coins className="w-5 h-5 text-green-600" />
+        <div className="h-px bg-slate-100"></div>
+
+        {/* 概算報酬 */}
+        <div>
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-slate-500 text-sm">概算報酬額</span>
+            {hourlyRate > 0 && (
+              <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded">
+                時給 {hourlyRate.toLocaleString()}円
+              </span>
+            )}
           </div>
-          <h3 className="text-sm font-medium text-gray-600">概算報酬額</h3>
+          <div className="flex items-center gap-2 text-blue-600">
+            <JapaneseYen size={28} />
+            <span className="text-3xl font-bold tracking-tight">
+              {estimatedEarnings.toLocaleString()}
+            </span>
+          </div>
+          <p className="text-xs text-slate-400 mt-2 text-right">
+            ※あくまで概算（税込/抜 未考慮）です
+          </p>
         </div>
-        <p className="text-3xl font-bold text-gray-900">
-          {formatCurrency(estimatedEarnings)}
-        </p>
       </div>
     </div>
   )

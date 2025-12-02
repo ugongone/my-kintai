@@ -1,9 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Clock, Play, Pause, Square } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
+import { Clock, Play, Coffee, Square, Edit3 } from 'lucide-react'
 
 type WorkStatus = 'offline' | 'working' | 'break'
 
@@ -17,24 +15,6 @@ interface StatusCardProps {
   lastEntryTime?: string
 }
 
-const statusConfig = {
-  offline: {
-    label: '稼働外',
-    variant: 'default' as const,
-    color: 'text-slate-600',
-  },
-  working: {
-    label: '稼働中',
-    variant: 'success' as const,
-    color: 'text-green-600',
-  },
-  break: {
-    label: '休憩中',
-    variant: 'warning' as const,
-    color: 'text-orange-600',
-  },
-}
-
 export function StatusCard({
   onPunchIn,
   onPunchOut,
@@ -42,7 +22,6 @@ export function StatusCard({
   onBreakEnd,
   onManualEntry,
   currentStatus,
-  lastEntryTime,
 }: StatusCardProps) {
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -57,7 +36,6 @@ export function StatusCard({
     return date.toLocaleTimeString('ja-JP', {
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit',
     })
   }
 
@@ -66,88 +44,99 @@ export function StatusCard({
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-      weekday: 'long',
+      weekday: 'short',
     })
   }
 
-  const status = statusConfig[currentStatus]
-
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-900">打刻</h2>
-        <Badge variant={status.variant}>{status.label}</Badge>
+    <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 flex flex-col justify-between relative overflow-hidden">
+      {/* 背景装飾 */}
+      <div className="absolute top-0 right-0 p-4 opacity-10">
+        <Clock size={120} />
       </div>
 
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <Clock className={`w-6 h-6 ${status.color}`} />
-          <div className={`text-4xl font-bold ${status.color}`}>
-            {formatTime(currentTime)}
-          </div>
+      <div>
+        <h2 className="text-slate-500 font-medium mb-1">現在の時刻</h2>
+        <div className="text-4xl md:text-6xl font-bold text-slate-800 tracking-tight font-mono">
+          {formatTime(currentTime)}
+          <span className="text-xl md:text-2xl text-slate-400 ml-3 font-normal">
+            {currentTime.getSeconds().toString().padStart(2, '0')}
+          </span>
         </div>
-        <div className="text-gray-600">{formatDate(currentTime)}</div>
-        {lastEntryTime && (
-          <div className="text-sm text-gray-500 mt-2">
-            最終打刻: {lastEntryTime}
-          </div>
-        )}
+        <p className="text-slate-400 mt-2">{formatDate(currentTime)}</p>
       </div>
 
-      <div className="space-y-3">
-        {currentStatus === 'offline' && (
-          <Button
-            variant="primary"
-            fullWidth
-            onClick={onPunchIn}
-            className="flex items-center justify-center gap-2"
-          >
-            <Play className="w-5 h-5" />
-            業務開始
-          </Button>
-        )}
-
-        {currentStatus === 'working' && (
-          <>
-            <Button
-              variant="warning"
-              fullWidth
-              onClick={onBreakStart}
-              className="flex items-center justify-center gap-2"
+      <div className="mt-8 flex flex-col gap-4">
+        <div className="flex flex-wrap gap-4">
+          {currentStatus === 'offline' && (
+            <button
+              onClick={onPunchIn}
+              className="flex-1 min-w-[140px] bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-200 transition-all active:scale-95 flex flex-col items-center justify-center gap-2"
             >
-              <Pause className="w-5 h-5" />
-              休憩開始
-            </Button>
-            <Button
-              variant="secondary"
-              fullWidth
-              onClick={onPunchOut}
-              className="flex items-center justify-center gap-2"
+              <Play size={24} />
+              業務開始
+            </button>
+          )}
+
+          {currentStatus === 'working' && (
+            <>
+              <button
+                onClick={onBreakStart}
+                className="flex-1 min-w-[140px] bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-orange-200 transition-all active:scale-95 flex flex-col items-center justify-center gap-2"
+              >
+                <Coffee size={24} />
+                休憩開始
+              </button>
+              <button
+                onClick={onPunchOut}
+                className="flex-1 min-w-[140px] bg-slate-700 hover:bg-slate-800 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-slate-300 transition-all active:scale-95 flex flex-col items-center justify-center gap-2"
+              >
+                <Square size={24} />
+                業務終了
+              </button>
+            </>
+          )}
+
+          {currentStatus === 'break' && (
+            <button
+              onClick={onBreakEnd}
+              className="flex-1 min-w-[140px] bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-green-200 transition-all active:scale-95 flex flex-col items-center justify-center gap-2"
             >
-              <Square className="w-5 h-5" />
-              業務終了
-            </Button>
-          </>
-        )}
+              <Play size={24} />
+              休憩終了
+            </button>
+          )}
+        </div>
 
-        {currentStatus === 'break' && (
-          <Button
-            variant="success"
-            fullWidth
-            onClick={onBreakEnd}
-            className="flex items-center justify-center gap-2"
+        <div className="flex justify-end pt-2">
+          <button
+            onClick={onManualEntry}
+            className="text-sm text-slate-400 hover:text-blue-600 font-medium flex items-center gap-1.5 transition-colors px-2 py-1 rounded-md hover:bg-blue-50"
           >
-            <Play className="w-5 h-5" />
-            休憩終了
-          </Button>
-        )}
+            <Edit3 size={14} />
+            時間を指定して打刻（修正・後日入力）
+          </button>
+        </div>
+      </div>
 
-        <button
-          onClick={onManualEntry}
-          className="w-full text-sm text-blue-600 hover:text-blue-700 py-2"
-        >
-          手動で打刻を追加
-        </button>
+      <div className="mt-4 flex items-center space-x-2">
+        <span
+          className={`h-3 w-3 rounded-full ${
+            currentStatus === 'working'
+              ? 'bg-green-500 animate-pulse'
+              : currentStatus === 'break'
+                ? 'bg-orange-400'
+                : 'bg-slate-300'
+          }`}
+        ></span>
+        <span className="text-sm text-slate-500 font-medium">
+          ステータス:{' '}
+          {currentStatus === 'working'
+            ? '稼働中'
+            : currentStatus === 'break'
+              ? '休憩中'
+              : '稼働外'}
+        </span>
       </div>
     </div>
   )

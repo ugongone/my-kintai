@@ -19,7 +19,8 @@ export default function Home() {
   const currentStatus = getCurrentStatus(entries)
   const lastEntryTime = getLastEntryTime(entries)
   const { totalHours } = calculateMonthlyStats(entries)
-  const estimatedEarnings = totalHours * (settings?.hourly_rate || 0)
+  const hourlyRate = settings?.hourly_rate || 0
+  const estimatedEarnings = totalHours * hourlyRate
 
   const recentEntries = entries.slice(0, 3).map((entry) => ({
     id: entry.id,
@@ -161,17 +162,16 @@ export default function Home() {
   if (entriesLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-600">読み込み中...</div>
+        <div className="text-slate-600">読み込み中...</div>
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">打刻・ホーム</h1>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* 打刻エリア */}
+        <div className="md:col-span-2">
           <StatusCard
             currentStatus={currentStatus}
             lastEntryTime={lastEntryTime}
@@ -183,10 +183,12 @@ export default function Home() {
           />
         </div>
 
-        <div className="lg:col-span-2">
+        {/* 統計カード */}
+        <div className="space-y-6">
           <SummaryCard
             totalHours={totalHours}
             estimatedEarnings={estimatedEarnings}
+            hourlyRate={hourlyRate}
           />
         </div>
       </div>

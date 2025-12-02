@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Badge } from '@/components/ui/Badge'
 import { formatMinutesToHours, type DailyStat } from '@/lib/utils/dailyStats'
 import type { TimeEntry } from '@/types/database'
-import { ChevronDown, ChevronRight, Pencil, Trash2, Plus } from 'lucide-react'
+import { ChevronDown, ChevronRight, Pencil, Trash2 } from 'lucide-react'
 import { AddEntryRow } from './AddEntryRow'
 
 type HistoryTableProps = {
@@ -20,11 +20,21 @@ type HistoryTableProps = {
     breakStartTime?: string
     breakEndTime?: string
   }) => void
+  isAddingEntry?: boolean
+  onCancelAdd?: () => void
 }
 
-export function HistoryTable({ stats, year, month, onEditEntry, onDeleteEntry, onAddEntry }: HistoryTableProps) {
+export function HistoryTable({
+  stats,
+  year,
+  month,
+  onEditEntry,
+  onDeleteEntry,
+  onAddEntry,
+  isAddingEntry = false,
+  onCancelAdd,
+}: HistoryTableProps) {
   const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set())
-  const [isAddingEntry, setIsAddingEntry] = useState(false)
 
   const toggleExpand = (date: string) => {
     const newExpanded = new Set(expandedDates)
@@ -64,23 +74,19 @@ export function HistoryTable({ stats, year, month, onEditEntry, onDeleteEntry, o
     breakEndTime?: string
   }) => {
     onAddEntry(data)
-    setIsAddingEntry(false)
+  }
+
+  const handleCancelAdd = () => {
+    if (onCancelAdd) {
+      onCancelAdd()
+    }
   }
 
   if (stats.length === 0 && !isAddingEntry) {
     return (
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="p-8 text-center text-gray-500">
+      <div className="overflow-hidden">
+        <div className="p-8 text-center text-slate-500">
           この月の打刻データがありません
-        </div>
-        <div className="px-6 py-4 border-t border-gray-200">
-          <button
-            onClick={() => setIsAddingEntry(true)}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            打刻を追加
-          </button>
         </div>
       </div>
     )
@@ -88,15 +94,27 @@ export function HistoryTable({ stats, year, month, onEditEntry, onDeleteEntry, o
 
   if (stats.length === 0 && isAddingEntry) {
     return (
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <tbody className="bg-white divide-y divide-gray-200">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-slate-50 text-slate-500">
+              <tr>
+                <th className="px-6 py-4 font-medium">日付</th>
+                <th className="px-6 py-4 font-medium">ステータス</th>
+                <th className="px-6 py-4 font-medium">開始</th>
+                <th className="px-6 py-4 font-medium">終了</th>
+                <th className="px-6 py-4 font-medium">休憩</th>
+                <th className="px-6 py-4 font-medium">実働時間</th>
+                <th className="px-6 py-4 font-medium">備考</th>
+                <th className="px-6 py-4 font-medium">操作</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
               <AddEntryRow
                 year={year}
                 month={month}
                 onSave={handleAddEntry}
-                onCancel={() => setIsAddingEntry(false)}
+                onCancel={handleCancelAdd}
               />
             </tbody>
           </table>
@@ -106,49 +124,28 @@ export function HistoryTable({ stats, year, month, onEditEntry, onDeleteEntry, o
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      {!isAddingEntry && (
-        <div className="px-6 py-4 border-b border-gray-200">
-          <button
-            onClick={() => setIsAddingEntry(true)}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            打刻を追加
-          </button>
-        </div>
-      )}
+    <div className="overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-slate-50 text-slate-500">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                日付
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                ステータス
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                開始時刻
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                終了時刻
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                休憩時間
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                実働時間
-              </th>
+              <th className="px-6 py-4 font-medium">日付</th>
+              <th className="px-6 py-4 font-medium">ステータス</th>
+              <th className="px-6 py-4 font-medium">開始</th>
+              <th className="px-6 py-4 font-medium">終了</th>
+              <th className="px-6 py-4 font-medium">休憩</th>
+              <th className="px-6 py-4 font-medium">実働時間</th>
+              {isAddingEntry && <th className="px-6 py-4 font-medium">備考</th>}
+              {isAddingEntry && <th className="px-6 py-4 font-medium">操作</th>}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-slate-100">
             {isAddingEntry && (
               <AddEntryRow
                 year={year}
                 month={month}
                 onSave={handleAddEntry}
-                onCancel={() => setIsAddingEntry(false)}
+                onCancel={handleCancelAdd}
               />
             )}
             {stats.map((stat) => {
@@ -156,22 +153,24 @@ export function HistoryTable({ stats, year, month, onEditEntry, onDeleteEntry, o
               return (
                 <React.Fragment key={stat.date}>
                   <tr
-                    className="hover:bg-gray-50 cursor-pointer"
+                    className="hover:bg-slate-50 cursor-pointer transition-colors"
                     onClick={() => toggleExpand(stat.date)}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap font-medium text-slate-800">
                       <div className="flex items-center gap-2">
                         {isExpanded ? (
-                          <ChevronDown className="w-4 h-4 text-gray-500" />
+                          <ChevronDown className="w-4 h-4 text-slate-500" />
                         ) : (
-                          <ChevronRight className="w-4 h-4 text-gray-500" />
+                          <ChevronRight className="w-4 h-4 text-slate-500" />
                         )}
                         {stat.dateStr}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {stat.status === 'complete' && (
-                        <Badge variant="success">完了</Badge>
+                        <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">
+                          稼働
+                        </span>
                       )}
                       {stat.status === 'in_progress' && (
                         <Badge variant="warning">稼働中</Badge>
@@ -180,22 +179,24 @@ export function HistoryTable({ stats, year, month, onEditEntry, onDeleteEntry, o
                         <Badge variant="default">データなし</Badge>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-slate-600">
                       {stat.workStart || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-slate-600">
                       {stat.workEnd || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-slate-600">
                       {stat.breakMinutes > 0 ? formatMinutesToHours(stat.breakMinutes) : '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap font-bold text-slate-700">
                       {stat.workMinutes > 0 ? formatMinutesToHours(stat.workMinutes) : '-'}
                     </td>
+                    {isAddingEntry && <td className="px-6 py-4"></td>}
+                    {isAddingEntry && <td className="px-6 py-4"></td>}
                   </tr>
                   {isExpanded && stat.entries.length > 0 && (
                     <tr>
-                      <td colSpan={6} className="px-6 py-2 bg-gray-50">
+                      <td colSpan={isAddingEntry ? 8 : 6} className="px-6 py-2 bg-slate-50">
                         <div className="space-y-1">
                           {stat.entries.map((entry) => {
                             const entryTime = new Date(entry.entry_time)
@@ -203,15 +204,15 @@ export function HistoryTable({ stats, year, month, onEditEntry, onDeleteEntry, o
                             return (
                               <div
                                 key={entry.id}
-                                className="flex items-center gap-4 py-2 px-4 bg-white rounded border border-gray-200"
+                                className="flex items-center gap-4 py-2 px-4 bg-white rounded border border-slate-200"
                               >
                                 <Badge variant={getEntryTypeBadgeVariant(entry.entry_type)}>
                                   {getEntryTypeLabel(entry.entry_type)}
                                 </Badge>
-                                <span className="text-sm text-gray-900 font-medium">
+                                <span className="text-sm text-slate-900 font-medium">
                                   {timeStr}
                                 </span>
-                                <span className="text-sm text-gray-500 flex-1">
+                                <span className="text-sm text-slate-500 flex-1">
                                   {entry.note || '-'}
                                 </span>
                                 <div className="flex gap-2">

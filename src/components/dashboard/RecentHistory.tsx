@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { Badge } from '@/components/ui/Badge'
-import { ChevronRight } from 'lucide-react'
 
 type WorkEntry = {
   id: string
@@ -28,71 +27,50 @@ export function RecentHistory({ entries }: RecentHistoryProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900">直近の稼働</h2>
+    <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+      <div className="p-4 border-b border-slate-100 flex justify-between items-center">
+        <h3 className="font-bold text-slate-700">直近の稼働</h3>
         <Link
           href="/history"
-          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
         >
           すべて見る
-          <ChevronRight className="w-4 h-4" />
         </Link>
       </div>
 
       {entries.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">稼働履歴がありません</p>
+        <p className="text-slate-500 text-center py-8">稼働履歴がありません</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                  日付
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                  ステータス
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                  開始
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                  終了
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                  休憩
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                  実働
-                </th>
+          <table className="w-full text-sm text-left">
+            <thead className="bg-slate-50 text-slate-500">
+              <tr>
+                <th className="px-6 py-3 font-medium">日付</th>
+                <th className="px-6 py-3 font-medium">ステータス</th>
+                <th className="px-6 py-3 font-medium">開始</th>
+                <th className="px-6 py-3 font-medium">終了</th>
+                <th className="px-6 py-3 font-medium">実働時間</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {entries.map((entry) => (
-                <tr key={entry.id} className="border-b border-gray-100">
-                  <td className="py-3 px-4 text-sm text-gray-900">
+                <tr key={entry.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-6 py-4 font-medium text-slate-800">
                     {entry.date}
                   </td>
-                  <td className="py-3 px-4">
-                    <Badge
-                      variant={
-                        entry.status === 'completed' ? 'success' : 'warning'
-                      }
-                    >
-                      {entry.status === 'completed' ? '完了' : '稼働中'}
-                    </Badge>
+                  <td className="px-6 py-4">
+                    <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">
+                      {entry.status === 'completed' ? '稼働' : '稼働中'}
+                    </span>
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-900">
+                  <td className="px-6 py-4 text-slate-600">
                     {formatTime(entry.startTime)}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-900">
+                  <td className="px-6 py-4 text-slate-600">
                     {entry.endTime ? formatTime(entry.endTime) : '-'}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-900">
-                    {formatDuration(entry.breakTime)}
-                  </td>
-                  <td className="py-3 px-4 text-sm font-medium text-gray-900">
-                    {formatDuration(entry.workTime)}
+                  <td className="px-6 py-4 font-bold text-slate-700">
+                    {formatDuration(entry.workTime)}h
                   </td>
                 </tr>
               ))}

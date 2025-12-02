@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useSettings } from '@/hooks/useSettings'
-import { Button } from '@/components/ui/Button'
+import { Settings } from 'lucide-react'
 
 export default function SettingsPage() {
   const { settings, loading, updateHourlyRate } = useSettings()
@@ -28,30 +28,23 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-600">読み込み中...</div>
+        <div className="text-slate-600">読み込み中...</div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">設定</h1>
-
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">時給設定</h2>
-
-        <div className="mb-6">
-          <div className="text-sm text-gray-600 mb-2">現在の時給</div>
-          <div className="text-3xl font-bold text-gray-900">
-            ¥{settings?.hourly_rate.toLocaleString()}
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              新しい時給（円）
-            </label>
+    <div className="bg-white p-8 rounded-xl border border-slate-100 max-w-lg mx-auto mt-8">
+      <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
+        <Settings className="text-blue-600" />
+        環境設定
+      </h3>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            現在の時給設定 (円)
+          </label>
+          <div className="flex items-center gap-2">
             <input
               type="number"
               value={hourlyRate}
@@ -60,14 +53,25 @@ export default function SettingsPage() {
               required
               min="0"
               step="1"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="flex-1 border border-slate-300 rounded-lg p-2.5 text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
+            <span className="text-slate-500">円 / 時間</span>
           </div>
+          <p className="text-xs text-slate-400 mt-1">
+            ダッシュボードの概算報酬計算に使用されます。
+          </p>
+          <p className="text-sm text-slate-600 mt-2">
+            現在の設定: <span className="font-bold">¥{settings?.hourly_rate.toLocaleString()}</span>
+          </p>
+        </div>
 
-          <Button type="submit" variant="primary" disabled={isSaving || !hourlyRate}>
-            {isSaving ? '更新中...' : '時給を更新'}
-          </Button>
-        </form>
+        <button
+          onClick={handleSubmit}
+          disabled={isSaving || !hourlyRate}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-md shadow-blue-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSaving ? '更新中...' : '時給を更新'}
+        </button>
       </div>
     </div>
   )

@@ -15,8 +15,10 @@ import {
   User,
   Edit3,
   X,
-  JapaneseYen, // アイコン追加
-  TrendingUp   // アイコン追加
+  JapaneseYen,
+  TrendingUp,
+  Plus, // 追加
+  Save  // 追加
 } from 'lucide-react';
 
 const App = () => {
@@ -28,6 +30,15 @@ const App = () => {
   
   // 設定（モック用）
   const [hourlyWage, setHourlyWage] = useState(3000); // 時給設定
+
+  // 勤怠履歴データ（編集・追加可能にするためState化）
+  const [historyData, setHistoryData] = useState([
+    { id: 1, date: '2023-11-01', start: '19:00', end: '22:00', break: '00:00', total: 3.0, status: '稼働', note: '定例MTG参加' },
+    { id: 2, date: '2023-11-02', start: '13:00', end: '18:00', break: '00:00', total: 5.0, status: '稼働', note: '' },
+    { id: 3, date: '2023-11-05', start: '20:00', end: '23:30', break: '00:00', total: 3.5, status: '稼働', note: '' },
+    { id: 4, date: '2023-11-06', start: '19:30', end: '21:30', break: '00:00', total: 2.0, status: '稼働', note: '' },
+    { id: 5, date: '2023-11-07', start: '20:00', end: '22:00', break: '00:00', total: 2.0, status: '稼働', note: '' },
+  ]);
 
   // 時計の更新
   useEffect(() => {
@@ -43,23 +54,20 @@ const App = () => {
   const formatDate = (date) => {
     return date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
   };
+  
+  // 履歴表示用日付フォーマット
+  const formatDateForDisplay = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ja-JP', { month: '2-digit', day: '2-digit', weekday: 'short' });
+  };
 
   // 金額フォーマット
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(amount);
   };
 
-  // モックデータ: 勤怠履歴（副業用にステータスなどを調整）
-  const historyData = [
-    { date: '11/01 (金)', start: '19:00', end: '22:00', break: '00:00', total: 3.0, status: '稼働' },
-    { date: '11/02 (土)', start: '13:00', end: '18:00', break: '00:00', total: 5.0, status: '稼働' },
-    { date: '11/05 (火)', start: '20:00', end: '23:30', break: '00:00', total: 3.5, status: '稼働' },
-    { date: '11/06 (水)', start: '19:30', end: '21:30', break: '00:00', total: 2.0, status: '稼働' },
-    { date: '11/07 (木)', start: '20:00', end: '22:00', break: '00:00', total: 2.0, status: '稼働' },
-  ];
-
   // 今月の合計計算（モック）
-  const currentMonthTotalHours = 15.5; // 上記データの合計など
+  const currentMonthTotalHours = historyData.reduce((acc, curr) => acc + curr.total, 0);
   const currentMonthEarnings = currentMonthTotalHours * hourlyWage;
 
   // 手動打刻モーダルコンポーネント
@@ -305,9 +313,9 @@ const App = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {historyData.slice(0, 3).map((row, idx) => (
-                <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-slate-800">{row.date}</td>
+              {historyData.slice(0, 3).map((row) => (
+                <tr key={row.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-6 py-4 font-medium text-slate-800">{formatDateForDisplay(row.date)}</td>
                   <td className="px-6 py-4">
                     <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">
                       {row.status}
@@ -325,62 +333,219 @@ const App = () => {
     </div>
   );
 
-  const HistoryView = () => (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-100 animate-fade-in">
-      <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
-        <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-          <Calendar className="text-blue-600" />
-          月次稼働実績
-        </h2>
-        <div className="flex items-center bg-slate-100 rounded-lg p-1">
-          <button className="p-2 hover:bg-white rounded-md transition-shadow hover:shadow-sm text-slate-500">
-            <ChevronLeft size={20} />
-          </button>
-          <span className="px-4 font-bold text-slate-700">2023年 11月</span>
-          <button className="p-2 hover:bg-white rounded-md transition-shadow hover:shadow-sm text-slate-500">
-            <ChevronRight size={20} />
-          </button>
+  const HistoryView = () => {
+    // インライン追加用のState
+    const [isAddingLog, setIsAddingLog] = useState(false);
+    const [newLog, setNewLog] = useState({
+      date: new Date().toISOString().split('T')[0],
+      status: '稼働',
+      start: '',
+      end: '',
+      break: '00:00',
+      note: ''
+    });
+
+    const handleSaveLog = () => {
+      // 簡易的な時間計算（モック用）
+      let calculatedTotal = 0;
+      if (newLog.start && newLog.end) {
+        // 本来は詳細な時間計算ロジックが必要
+        calculatedTotal = 2.0; 
+      }
+
+      const newItem = {
+        id: Date.now(),
+        ...newLog,
+        total: calculatedTotal
+      };
+
+      // 日付順に並び替え
+      const updatedList = [...historyData, newItem].sort((a, b) => new Date(a.date) - new Date(b.date));
+      
+      setHistoryData(updatedList);
+      setIsAddingLog(false);
+      setNewLog({
+        date: new Date().toISOString().split('T')[0],
+        status: '稼働',
+        start: '',
+        end: '',
+        break: '00:00',
+        note: ''
+      });
+    };
+
+    return (
+      <div className="space-y-6 animate-fade-in">
+        
+        {/* サマリーカードを追加 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+           <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
+             <div>
+               <p className="text-slate-500 text-sm mb-1">総稼働時間</p>
+               <div className="flex items-end gap-2">
+                 <span className="text-3xl font-bold text-slate-800 tracking-tight">{currentMonthTotalHours}</span>
+                 <span className="text-sm text-slate-400 font-medium mb-1">時間</span>
+               </div>
+             </div>
+             <div className="bg-blue-50 p-3 rounded-full text-blue-600">
+               <Clock size={24} />
+             </div>
+           </div>
+
+           <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
+             <div>
+               <p className="text-slate-500 text-sm mb-1">概算報酬額</p>
+               <div className="flex items-end gap-2 text-blue-600">
+                 <span className="text-3xl font-bold tracking-tight">
+                   {currentMonthEarnings.toLocaleString()}
+                 </span>
+                 <span className="text-sm text-blue-400 font-medium mb-1">円</span>
+               </div>
+             </div>
+             <div className="bg-orange-50 p-3 rounded-full text-orange-600">
+               <JapaneseYen size={24} />
+             </div>
+           </div>
         </div>
-        <button className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-900 transition-colors">
-          CSV出力
-        </button>
+
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100">
+          <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <Calendar className="text-blue-600" />
+              月次稼働実績
+            </h2>
+            <div className="flex items-center bg-slate-100 rounded-lg p-1">
+              <button className="p-2 hover:bg-white rounded-md transition-shadow hover:shadow-sm text-slate-500">
+                <ChevronLeft size={20} />
+              </button>
+              <span className="px-4 font-bold text-slate-700">2023年 11月</span>
+              <button className="p-2 hover:bg-white rounded-md transition-shadow hover:shadow-sm text-slate-500">
+                <ChevronRight size={20} />
+              </button>
+            </div>
+            
+            <div className="flex gap-2">
+              {/* 打刻追加ボタン */}
+              <button 
+                onClick={() => setIsAddingLog(true)}
+                className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+              >
+                <Plus size={16} />
+                打刻を追加
+              </button>
+              <button className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-900 transition-colors">
+                CSV出力
+              </button>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-slate-50 text-slate-500">
+                <tr>
+                  <th className="px-6 py-4 font-medium">日付</th>
+                  <th className="px-6 py-4 font-medium">ステータス</th>
+                  <th className="px-6 py-4 font-medium">開始</th>
+                  <th className="px-6 py-4 font-medium">終了</th>
+                  <th className="px-6 py-4 font-medium">休憩</th>
+                  <th className="px-6 py-4 font-medium">実働時間</th>
+                  <th className="px-6 py-4 font-medium">備考</th>
+                  {isAddingLog && <th className="px-6 py-4 font-medium">操作</th>}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {/* 入力行（isAddingLogがTrueのとき表示） */}
+                {isAddingLog && (
+                  <tr className="bg-blue-50 animate-fade-in">
+                    <td className="px-6 py-3">
+                      <input 
+                        type="date" 
+                        value={newLog.date}
+                        onChange={(e) => setNewLog({...newLog, date: e.target.value})}
+                        className="w-32 border border-blue-300 rounded px-2 py-1 text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                    </td>
+                    <td className="px-6 py-3">
+                      <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">稼働</span>
+                    </td>
+                    <td className="px-6 py-3">
+                      <input 
+                        type="time" 
+                        value={newLog.start}
+                        onChange={(e) => setNewLog({...newLog, start: e.target.value})}
+                        className="w-24 border border-blue-300 rounded px-2 py-1 text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                    </td>
+                    <td className="px-6 py-3">
+                      <input 
+                        type="time" 
+                        value={newLog.end}
+                        onChange={(e) => setNewLog({...newLog, end: e.target.value})}
+                        className="w-24 border border-blue-300 rounded px-2 py-1 text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                    </td>
+                    <td className="px-6 py-3">
+                      <input 
+                        type="time" 
+                        value={newLog.break}
+                        onChange={(e) => setNewLog({...newLog, break: e.target.value})}
+                        className="w-20 border border-blue-300 rounded px-2 py-1 text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                    </td>
+                    <td className="px-6 py-3 text-slate-400 text-xs">自動計算</td>
+                    <td className="px-6 py-3">
+                      <input 
+                        type="text" 
+                        placeholder="備考"
+                        value={newLog.note}
+                        onChange={(e) => setNewLog({...newLog, note: e.target.value})}
+                        className="w-full border border-blue-300 rounded px-2 py-1 text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                    </td>
+                    <td className="px-6 py-3 flex items-center gap-2">
+                      <button 
+                        onClick={handleSaveLog}
+                        className="p-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                        title="保存"
+                      >
+                        <Save size={14} />
+                      </button>
+                      <button 
+                        onClick={() => setIsAddingLog(false)}
+                        className="p-1.5 bg-white border border-slate-300 text-slate-500 rounded hover:bg-slate-50 transition-colors"
+                        title="キャンセル"
+                      >
+                        <X size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                )}
+
+                {historyData.map((row) => (
+                  <tr key={row.id} className="hover:bg-slate-50">
+                    <td className="px-6 py-4 font-medium text-slate-800">{formatDateForDisplay(row.date)}</td>
+                    <td className="px-6 py-4">
+                       <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">
+                          {row.status}
+                        </span>
+                    </td>
+                    <td className="px-6 py-4 text-slate-600">{row.start}</td>
+                    <td className="px-6 py-4 text-slate-600">{row.end}</td>
+                    <td className="px-6 py-4 text-slate-600">{row.break}</td>
+                    <td className="px-6 py-4 font-bold text-slate-700">{row.total}h</td>
+                    <td className="px-6 py-4 text-slate-400 text-xs">
+                      {row.note || '-'}
+                    </td>
+                    {/* ヘッダーとの整合性を保つための空セル（追加モード時のみ） */}
+                    {isAddingLog && <td className="px-6 py-4"></td>}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left">
-          <thead className="bg-slate-50 text-slate-500">
-            <tr>
-              <th className="px-6 py-4 font-medium">日付</th>
-              <th className="px-6 py-4 font-medium">ステータス</th>
-              <th className="px-6 py-4 font-medium">開始</th>
-              <th className="px-6 py-4 font-medium">終了</th>
-              <th className="px-6 py-4 font-medium">休憩</th>
-              <th className="px-6 py-4 font-medium">実働時間</th>
-              <th className="px-6 py-4 font-medium">備考</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {historyData.map((row, idx) => (
-              <tr key={idx} className="hover:bg-slate-50">
-                <td className="px-6 py-4 font-medium text-slate-800">{row.date}</td>
-                <td className="px-6 py-4">
-                   <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">
-                      {row.status}
-                    </span>
-                </td>
-                <td className="px-6 py-4 text-slate-600">{row.start}</td>
-                <td className="px-6 py-4 text-slate-600">{row.end}</td>
-                <td className="px-6 py-4 text-slate-600">{row.break}</td>
-                <td className="px-6 py-4 font-bold text-slate-700">{row.total}h</td>
-                <td className="px-6 py-4 text-slate-400 text-xs">
-                  {idx === 0 ? '定例MTG参加' : '-'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-slate-800">
