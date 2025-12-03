@@ -77,35 +77,34 @@ export function ManualEntryModal({
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              時刻
-            </label>
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              required
-              className="w-full border border-slate-300 rounded-lg p-2.5 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              打刻種別
-            </label>
-            <select
-              value={entryType}
-              onChange={(e) => setEntryType(e.target.value as EntryType)}
-              required
-              className="w-full border border-slate-300 rounded-lg p-2.5 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow bg-white"
-            >
-              <option value="work_start">業務開始</option>
-              <option value="work_end">業務終了</option>
-              <option value="break_start">休憩開始</option>
-              <option value="break_end">休憩終了</option>
-            </select>
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            時刻
+          </label>
+          <input
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            required
+            className="w-full border border-slate-300 rounded-lg p-2.5 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            打刻種別
+          </label>
+          <select
+            value={entryType}
+            onChange={(e) => setEntryType(e.target.value as EntryType)}
+            required
+            className="w-full border border-slate-300 rounded-lg p-2.5 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow bg-white"
+          >
+            <option value="work_start">業務開始</option>
+            <option value="work_end">業務終了</option>
+            <option value="break_start">休憩開始</option>
+            <option value="break_end">休憩終了</option>
+          </select>
         </div>
 
         <div>
