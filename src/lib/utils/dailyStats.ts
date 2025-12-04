@@ -123,7 +123,7 @@ export function calculateDailyStats(entries: TimeEntry[]): DailyStat[] {
       date: dateKey,
       dateStr,
       workStart: workStart ? formatTime(workStart) : undefined,
-      workEnd: workEnd ? formatTime(workEnd) : undefined,
+      workEnd: workEnd ? formatTimeWithNextDay(workEnd, dateKey) : undefined,
       breakMinutes: Math.round(totalBreakMinutes),
       workMinutes: Math.round(totalWorkMinutes),
       entries: sortedEntries,
@@ -135,6 +135,19 @@ export function calculateDailyStats(entries: TimeEntry[]): DailyStat[] {
 
 function formatTime(date: Date): string {
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+}
+
+function formatTimeWithNextDay(date: Date, workDate: string): string {
+  // 終了時刻の日付がwork_dateの翌日かどうか判定
+  const endDateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+
+  if (endDateStr > workDate) {
+    // 翌日の場合は24+時間で表示（例: 1:00 → 25:00）
+    const hours = date.getHours() + 24
+    return `${hours}:${String(date.getMinutes()).padStart(2, '0')}`
+  }
+
+  return formatTime(date)
 }
 
 export function formatMinutesToHours(minutes: number): string {
