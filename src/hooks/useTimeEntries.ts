@@ -110,6 +110,7 @@ export function useTimeEntries(year?: number, month?: number) {
     endTime: string
     breakStartTime?: string
     breakEndTime?: string
+    isEndTimeNextDay?: boolean
   }) => {
     if (!user) return
 
@@ -122,7 +123,14 @@ export function useTimeEntries(year?: number, month?: number) {
     }[] = []
 
     const workStartTime = new Date(`${data.date}T${data.startTime}`)
-    const workEndTime = new Date(`${data.date}T${data.endTime}`)
+    // 翌日フラグがある場合は終了日を+1日する
+    let endDate = data.date
+    if (data.isEndTimeNextDay) {
+      const baseDate = new Date(`${data.date}T00:00:00`)
+      baseDate.setDate(baseDate.getDate() + 1)
+      endDate = `${baseDate.getFullYear()}-${String(baseDate.getMonth() + 1).padStart(2, '0')}-${String(baseDate.getDate()).padStart(2, '0')}`
+    }
+    const workEndTime = new Date(`${endDate}T${data.endTime}`)
 
     entriesToInsert.push({
       user_id: user.id,

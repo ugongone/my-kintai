@@ -111,6 +111,7 @@ export default function HistoryPage() {
     endTime: string
     breakStartTime?: string
     breakEndTime?: string
+    isEndTimeNextDay?: boolean
   }) => {
     try {
       await addMultipleEntries(data)

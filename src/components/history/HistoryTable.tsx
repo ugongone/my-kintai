@@ -19,6 +19,7 @@ type HistoryTableProps = {
     endTime: string
     breakStartTime?: string
     breakEndTime?: string
+    isEndTimeNextDay?: boolean
   }) => void
   isAddingEntry?: boolean
   onCancelAdd?: () => void

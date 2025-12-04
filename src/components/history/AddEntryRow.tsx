@@ -12,6 +12,7 @@ type AddEntryRowProps = {
     endTime: string
     breakStartTime?: string
     breakEndTime?: string
+    isEndTimeNextDay?: boolean
   }) => void
   onCancel: () => void
 }
@@ -33,6 +34,7 @@ export function AddEntryRow({ year, month, onSave, onCancel }: AddEntryRowProps)
   const [endTime, setEndTime] = useState('18:00')
   const [breakStartTime, setBreakStartTime] = useState('')
   const [breakEndTime, setBreakEndTime] = useState('')
+  const [isEndTimeNextDay, setIsEndTimeNextDay] = useState(false)
   const [error, setError] = useState('')
 
   const handleSave = () => {
@@ -43,7 +45,7 @@ export function AddEntryRow({ year, month, onSave, onCancel }: AddEntryRowProps)
       return
     }
 
-    if (startTime >= endTime) {
+    if (!isEndTimeNextDay && startTime >= endTime) {
       setError('終了時刻は開始時刻より後にしてください')
       return
     }
@@ -59,8 +61,14 @@ export function AddEntryRow({ year, month, onSave, onCancel }: AddEntryRowProps)
         setError('休憩終了は休憩開始より後にしてください')
         return
       }
-      if (breakStartTime < startTime || breakEndTime > endTime) {
+      // 翌日跨ぎでない場合のみ業務時間内チェック
+      if (!isEndTimeNextDay && (breakStartTime < startTime || breakEndTime > endTime)) {
         setError('休憩時間は業務時間内にしてください')
+        return
+      }
+      // 翌日跨ぎの場合は開始時刻以降であればOK
+      if (isEndTimeNextDay && breakStartTime < startTime) {
+        setError('休憩開始は業務開始以降にしてください')
         return
       }
     }
@@ -71,6 +79,7 @@ export function AddEntryRow({ year, month, onSave, onCancel }: AddEntryRowProps)
       endTime,
       breakStartTime: breakStartTime || undefined,
       breakEndTime: breakEndTime || undefined,
+      isEndTimeNextDay,
     })
   }
 
@@ -97,12 +106,23 @@ export function AddEntryRow({ year, month, onSave, onCancel }: AddEntryRowProps)
         />
       </td>
       <td className="px-6 py-3">
-        <input
-          type="time"
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
-          className={inputClass}
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="time"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+            className={inputClass}
+          />
+          <label className="flex items-center gap-1 text-xs text-slate-600 whitespace-nowrap">
+            <input
+              type="checkbox"
+              checked={isEndTimeNextDay}
+              onChange={(e) => setIsEndTimeNextDay(e.target.checked)}
+              className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+            />
+            翌日
+          </label>
+        </div>
       </td>
       <td className="px-6 py-3">
         <div className="flex flex-col gap-1">

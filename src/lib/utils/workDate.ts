@@ -11,6 +11,9 @@ export function calculateWorkDate(timestamp: Date): string {
     date.setDate(date.getDate() - 1)
   }
 
-  // YYYY-MM-DD形式で返す
-  return date.toISOString().split('T')[0]
+  // ローカルタイムゾーンでYYYY-MM-DD形式で返す
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
