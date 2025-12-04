@@ -5,11 +5,9 @@ import { useTimeEntries } from '@/hooks/useTimeEntries'
 import { useSettings } from '@/hooks/useSettings'
 import { MonthSelector } from '@/components/history/MonthSelector'
 import { HistoryTable } from '@/components/history/HistoryTable'
-import { calculateDailyStats } from '@/lib/utils/dailyStats'
+import { calculateDailyStats, type DailyStat } from '@/lib/utils/dailyStats'
 import { Calendar, Clock, JapaneseYen, Plus } from 'lucide-react'
-import { ManualEntryModal } from '@/components/dashboard/ManualEntryModal'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import type { TimeEntry, EntryType } from '@/types/database'
 
 export default function HistoryPage() {
   const currentDate = new Date()
@@ -17,13 +15,12 @@ export default function HistoryPage() {
   const [month, setMonth] = useState(currentDate.getMonth())
   const [isAddingEntry, setIsAddingEntry] = useState(false)
 
-  const { entries, loading, updateEntry, deleteEntry, addMultipleEntries } = useTimeEntries(year, month)
+  const { entries, loading, deleteEntry, addMultipleEntries, replaceEntriesForDate } = useTimeEntries(year, month)
   const { settings, loading: settingsLoading } = useSettings()
   const dailyStats = useMemo(() => calculateDailyStats(entries), [entries])
 
-  const [editingEntry, setEditingEntry] = useState<TimeEntry | null>(null)
-  const [deletingEntry, setDeletingEntry] = useState<TimeEntry | null>(null)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editingDate, setEditingDate] = useState<string | null>(null)
+  const [deletingStat, setDeletingStat] = useState<DailyStat | null>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const totalWorkMinutes = dailyStats.reduce((sum, stat) => sum + stat.workMinutes, 0)
@@ -52,53 +49,45 @@ export default function HistoryPage() {
     }
   }
 
-  const getEntryTypeLabel = (type: EntryType): string => {
-    switch (type) {
-      case 'work_start': return '業務開始'
-      case 'work_end': return '業務終了'
-      case 'break_start': return '休憩開始'
-      case 'break_end': return '休憩終了'
-    }
+  const handleEditStat = (stat: DailyStat) => {
+    setEditingDate(stat.date)
   }
 
-  const handleEditEntry = (entry: TimeEntry) => {
-    setEditingEntry(entry)
-    setIsEditModalOpen(true)
-  }
-
-  const handleUpdateEntry = async (data: {
+  const handleSaveEdit = async (data: {
     date: string
-    time: string
-    entryType: EntryType
-    note?: string
+    startTime: string
+    endTime: string
+    breakStartTime?: string
+    breakEndTime?: string
+    isEndTimeNextDay?: boolean
   }) => {
-    if (!editingEntry) return
     try {
-      const entryTime = new Date(`${data.date}T${data.time}`)
-      await updateEntry(editingEntry.id, {
-        entry_type: data.entryType,
-        entry_time: entryTime.toISOString(),
-        note: data.note || undefined,
-      })
-      setIsEditModalOpen(false)
-      setEditingEntry(null)
+      await replaceEntriesForDate(data)
+      setEditingDate(null)
     } catch (error) {
       console.error('更新エラー:', error)
       alert('打刻の更新に失敗しました')
     }
   }
 
-  const handleDeleteClick = (entry: TimeEntry) => {
-    setDeletingEntry(entry)
+  const handleCancelEdit = () => {
+    setEditingDate(null)
+  }
+
+  const handleDeleteStat = (stat: DailyStat) => {
+    setDeletingStat(stat)
     setIsDeleteDialogOpen(true)
   }
 
   const handleDeleteConfirm = async () => {
-    if (!deletingEntry) return
+    if (!deletingStat) return
     try {
-      await deleteEntry(deletingEntry.id)
+      // その日の全エントリを削除
+      for (const entry of deletingStat.entries) {
+        await deleteEntry(entry.id)
+      }
       setIsDeleteDialogOpen(false)
-      setDeletingEntry(null)
+      setDeletingStat(null)
     } catch (error) {
       console.error('削除エラー:', error)
       alert('打刻の削除に失敗しました')
@@ -228,40 +217,26 @@ export default function HistoryPage() {
           stats={dailyStats}
           year={year}
           month={month}
-          onEditEntry={handleEditEntry}
-          onDeleteEntry={handleDeleteClick}
+          onEditStat={handleEditStat}
+          onDeleteStat={handleDeleteStat}
+          onSaveEdit={handleSaveEdit}
+          onCancelEdit={handleCancelEdit}
+          editingDate={editingDate}
           onAddEntry={handleAddEntry}
           isAddingEntry={isAddingEntry}
           onCancelAdd={() => setIsAddingEntry(false)}
         />
       </div>
 
-      <ManualEntryModal
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false)
-          setEditingEntry(null)
-        }}
-        onSubmit={handleUpdateEntry}
-        mode="edit"
-        initialData={editingEntry ? {
-          id: editingEntry.id,
-          date: new Date(editingEntry.entry_time).toISOString().split('T')[0],
-          time: new Date(editingEntry.entry_time).toTimeString().slice(0, 5),
-          entryType: editingEntry.entry_type,
-          note: editingEntry.note || '',
-        } : undefined}
-      />
-
       <ConfirmDialog
         isOpen={isDeleteDialogOpen}
         onClose={() => {
           setIsDeleteDialogOpen(false)
-          setDeletingEntry(null)
+          setDeletingStat(null)
         }}
         onConfirm={handleDeleteConfirm}
         title="打刻を削除"
-        message={deletingEntry ? `${getEntryTypeLabel(deletingEntry.entry_type)}の打刻を削除してもよろしいですか？` : ''}
+        message={deletingStat ? `${deletingStat.dateStr}の打刻データを全て削除してもよろしいですか？` : ''}
         variant="danger"
         confirmText="削除"
         cancelText="キャンセル"

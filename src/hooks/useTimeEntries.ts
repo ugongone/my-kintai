@@ -177,6 +177,32 @@ export function useTimeEntries(year?: number, month?: number) {
     await fetchEntries()
   }
 
+  const replaceEntriesForDate = async (data: {
+    date: string
+    startTime: string
+    endTime: string
+    breakStartTime?: string
+    breakEndTime?: string
+    isEndTimeNextDay?: boolean
+  }) => {
+    if (!user) return
+
+    // その日の既存エントリを削除
+    const { error: deleteError } = await supabase
+      .from('time_entries')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('work_date', data.date)
+
+    if (deleteError) {
+      console.error('Error deleting existing entries:', deleteError)
+      throw deleteError
+    }
+
+    // 新しいエントリを追加
+    await addMultipleEntries(data)
+  }
+
   return {
     entries,
     loading,
@@ -184,6 +210,7 @@ export function useTimeEntries(year?: number, month?: number) {
     addMultipleEntries,
     updateEntry,
     deleteEntry,
+    replaceEntriesForDate,
     refetch: fetchEntries,
   }
 }
