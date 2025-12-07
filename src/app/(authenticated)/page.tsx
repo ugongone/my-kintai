@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { StatusCard } from '@/components/dashboard/StatusCard'
 import { ManualEntryModal } from '@/components/dashboard/ManualEntryModal'
 import { SummaryCard } from '@/components/dashboard/SummaryCard'
 import { RecentHistory } from '@/components/dashboard/RecentHistory'
 import { useTimeEntries } from '@/hooks/useTimeEntries'
 import { useSettings } from '@/hooks/useSettings'
-import { getCurrentStatus, getLastEntryTime, calculateMonthlyStats } from '@/lib/utils/workStatus'
+import { getCurrentStatus, getLastEntryTime } from '@/lib/utils/workStatus'
+import { calculateDailyStats } from '@/lib/utils/dailyStats'
 import { validateNewEntry } from '@/lib/utils/validation'
 import type { EntryType } from '@/types/database'
 
@@ -18,21 +19,19 @@ export default function Home() {
 
   const currentStatus = getCurrentStatus(entries)
   const lastEntryTime = getLastEntryTime(entries)
-  const { totalHours } = calculateMonthlyStats(entries)
+  const dailyStats = useMemo(() => calculateDailyStats(entries), [entries])
+  const totalWorkMinutes = dailyStats.reduce((sum, stat) => sum + stat.workMinutes, 0)
+  const totalHours = totalWorkMinutes / 60
   const hourlyRate = settings?.hourly_rate || 0
   const estimatedEarnings = totalHours * hourlyRate
 
-  const recentEntries = entries.slice(0, 3).map((entry) => ({
-    id: entry.id,
-    date: new Date(entry.entry_time).toLocaleDateString('ja-JP'),
-    status: 'completed' as const,
-    startTime: new Date(entry.entry_time).toLocaleTimeString('ja-JP', {
-      hour: '2-digit',
-      minute: '2-digit',
-    }),
-    endTime: undefined,
-    breakTime: 0,
-    workTime: 0,
+  const recentEntries = dailyStats.slice(0, 3).map((stat) => ({
+    id: stat.id,
+    date: stat.dateStr,
+    startTime: stat.workStart || '-',
+    endTime: stat.workEnd,
+    breakTime: stat.breakMinutes,
+    workTime: stat.workMinutes,
   }))
 
   const handlePunchIn = async () => {
