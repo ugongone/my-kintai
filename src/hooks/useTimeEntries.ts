@@ -19,15 +19,17 @@ export function useTimeEntries(year?: number, month?: number) {
     const targetYear = year ?? now.getFullYear()
     const targetMonth = month ?? now.getMonth()
 
-    const firstDay = new Date(targetYear, targetMonth, 1)
-    const lastDay = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999)
+    // work_dateでフィルタ（YYYY-MM-DD形式）
+    const firstDayStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-01`
+    const lastDay = new Date(targetYear, targetMonth + 1, 0)
+    const lastDayStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`
 
     const { data, error } = await supabase
       .from('time_entries')
       .select('*')
       .eq('user_id', user.id)
-      .gte('entry_time', firstDay.toISOString())
-      .lte('entry_time', lastDay.toISOString())
+      .gte('work_date', firstDayStr)
+      .lte('work_date', lastDayStr)
       .order('entry_time', { ascending: false })
 
     if (error) {
@@ -132,18 +134,19 @@ export function useTimeEntries(year?: number, month?: number) {
     }
     const workEndTime = new Date(`${endDate}T${data.endTime}`)
 
+    // B案: 全エントリでwork_dateは開始日に統一
     entriesToInsert.push({
       user_id: user.id,
       entry_type: 'work_start',
       entry_time: workStartTime.toISOString(),
-      work_date: calculateWorkDate(workStartTime),
+      work_date: data.date,
     })
 
     entriesToInsert.push({
       user_id: user.id,
       entry_type: 'work_end',
       entry_time: workEndTime.toISOString(),
-      work_date: calculateWorkDate(workEndTime),
+      work_date: data.date,
     })
 
     if (data.breakStartTime && data.breakEndTime) {
@@ -154,14 +157,14 @@ export function useTimeEntries(year?: number, month?: number) {
         user_id: user.id,
         entry_type: 'break_start',
         entry_time: breakStartTime.toISOString(),
-        work_date: calculateWorkDate(breakStartTime),
+        work_date: data.date,
       })
 
       entriesToInsert.push({
         user_id: user.id,
         entry_type: 'break_end',
         entry_time: breakEndTime.toISOString(),
-        work_date: calculateWorkDate(breakEndTime),
+        work_date: data.date,
       })
     }
 
@@ -184,15 +187,22 @@ export function useTimeEntries(year?: number, month?: number) {
     breakStartTime?: string
     breakEndTime?: string
     isEndTimeNextDay?: boolean
+    entryIds?: string[]
   }) => {
     if (!user) return
 
-    // その日の既存エントリを削除
-    const { error: deleteError } = await supabase
-      .from('time_entries')
-      .delete()
-      .eq('user_id', user.id)
-      .eq('work_date', data.date)
+    // 既存エントリを削除（IDが指定されていればIDで、なければwork_dateで削除）
+    const { error: deleteError } = data.entryIds && data.entryIds.length > 0
+      ? await supabase
+          .from('time_entries')
+          .delete()
+          .eq('user_id', user.id)
+          .in('id', data.entryIds)
+      : await supabase
+          .from('time_entries')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('work_date', data.date)
 
     if (deleteError) {
       console.error('Error deleting existing entries:', deleteError)

@@ -13,6 +13,7 @@ type EditEntryRowProps = {
     breakStartTime?: string
     breakEndTime?: string
     isEndTimeNextDay?: boolean
+    entryIds?: string[]
   }) => void
   onCancel: () => void
 }
@@ -93,6 +94,7 @@ export function EditEntryRow({ stat, onSave, onCancel }: EditEntryRowProps) {
       breakStartTime: breakStartTime || undefined,
       breakEndTime: breakEndTime || undefined,
       isEndTimeNextDay,
+      entryIds: stat.entries.map(e => e.id),
     })
   }
 

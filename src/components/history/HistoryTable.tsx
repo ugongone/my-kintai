@@ -18,9 +18,10 @@ type HistoryTableProps = {
     breakStartTime?: string
     breakEndTime?: string
     isEndTimeNextDay?: boolean
+    entryIds?: string[]
   }) => void
   onCancelEdit: () => void
-  editingDate: string | null
+  editingId: string | null
   onAddEntry: (data: {
     date: string
     startTime: string
@@ -41,7 +42,7 @@ export function HistoryTable({
   onDeleteStat,
   onSaveEdit,
   onCancelEdit,
-  editingDate,
+  editingId,
   onAddEntry,
   isAddingEntry = false,
   onCancelAdd,
@@ -62,7 +63,7 @@ export function HistoryTable({
     }
   }
 
-  const isEditing = editingDate !== null || isAddingEntry
+  const isEditing = editingId !== null || isAddingEntry
 
   if (stats.length === 0 && !isAddingEntry) {
     return (
@@ -100,10 +101,10 @@ export function HistoryTable({
             )}
             {stats.map((stat) => {
               // 編集中の行の場合
-              if (editingDate === stat.date) {
+              if (editingId === stat.id) {
                 return (
                   <EditEntryRow
-                    key={stat.date}
+                    key={stat.id}
                     stat={stat}
                     onSave={onSaveEdit}
                     onCancel={onCancelEdit}
@@ -112,7 +113,7 @@ export function HistoryTable({
               }
 
               return (
-                <tr key={stat.date} className="hover:bg-slate-50 transition-colors">
+                <tr key={stat.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap font-medium text-slate-800">
                     {stat.dateStr}
                   </td>

@@ -19,7 +19,7 @@ export default function HistoryPage() {
   const { settings, loading: settingsLoading } = useSettings()
   const dailyStats = useMemo(() => calculateDailyStats(entries), [entries])
 
-  const [editingDate, setEditingDate] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [deletingStat, setDeletingStat] = useState<DailyStat | null>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -50,7 +50,7 @@ export default function HistoryPage() {
   }
 
   const handleEditStat = (stat: DailyStat) => {
-    setEditingDate(stat.date)
+    setEditingId(stat.id)
   }
 
   const handleSaveEdit = async (data: {
@@ -60,10 +60,11 @@ export default function HistoryPage() {
     breakStartTime?: string
     breakEndTime?: string
     isEndTimeNextDay?: boolean
+    entryIds?: string[]
   }) => {
     try {
       await replaceEntriesForDate(data)
-      setEditingDate(null)
+      setEditingId(null)
     } catch (error) {
       console.error('更新エラー:', error)
       alert('打刻の更新に失敗しました')
@@ -71,7 +72,7 @@ export default function HistoryPage() {
   }
 
   const handleCancelEdit = () => {
-    setEditingDate(null)
+    setEditingId(null)
   }
 
   const handleDeleteStat = (stat: DailyStat) => {
@@ -221,7 +222,7 @@ export default function HistoryPage() {
           onDeleteStat={handleDeleteStat}
           onSaveEdit={handleSaveEdit}
           onCancelEdit={handleCancelEdit}
-          editingDate={editingDate}
+          editingId={editingId}
           onAddEntry={handleAddEntry}
           isAddingEntry={isAddingEntry}
           onCancelAdd={() => setIsAddingEntry(false)}
