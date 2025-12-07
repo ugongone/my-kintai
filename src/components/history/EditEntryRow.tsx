@@ -52,8 +52,10 @@ export function EditEntryRow({ stat, onSave, onCancel }: EditEntryRowProps) {
   const [breakEndTime, setBreakEndTime] = useState(getTimeFromEntry(breakEndEntry))
   const [isEndTimeNextDay, setIsEndTimeNextDay] = useState(isNextDay())
   const [error, setError] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
 
   const handleSave = () => {
+    if (isSaving) return
     setError('')
 
     if (!startTime || !endTime) {
@@ -87,6 +89,7 @@ export function EditEntryRow({ stat, onSave, onCancel }: EditEntryRowProps) {
       }
     }
 
+    setIsSaving(true)
     onSave({
       date: stat.date,
       startTime,
@@ -162,7 +165,8 @@ export function EditEntryRow({ stat, onSave, onCancel }: EditEntryRowProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={handleSave}
-            className="p-1.5 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors"
+            disabled={isSaving}
+            className="p-1.5 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="保存"
           >
             <Save size={14} />

@@ -36,8 +36,10 @@ export function AddEntryRow({ year, month, onSave, onCancel }: AddEntryRowProps)
   const [breakEndTime, setBreakEndTime] = useState('')
   const [isEndTimeNextDay, setIsEndTimeNextDay] = useState(false)
   const [error, setError] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
 
   const handleSave = () => {
+    if (isSaving) return
     setError('')
 
     if (!date || !startTime || !endTime) {
@@ -73,6 +75,7 @@ export function AddEntryRow({ year, month, onSave, onCancel }: AddEntryRowProps)
       }
     }
 
+    setIsSaving(true)
     onSave({
       date,
       startTime,
@@ -154,7 +157,8 @@ export function AddEntryRow({ year, month, onSave, onCancel }: AddEntryRowProps)
         <div className="flex items-center gap-2">
           <button
             onClick={handleSave}
-            className="p-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            disabled={isSaving}
+            className="p-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="保存"
           >
             <Save size={14} />
