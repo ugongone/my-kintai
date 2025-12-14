@@ -33,9 +33,7 @@ export function validateNewEntry(
 
   // 状態遷移チェック
   const allowedTransitions: Record<EntryType, EntryType[]> = {
-    work_start: ['break_start', 'work_end'],
-    break_start: ['break_end'],
-    break_end: ['break_start', 'work_end'],
+    work_start: ['work_end'],
     work_end: ['work_start']
   }
 
@@ -73,9 +71,7 @@ export function validateNewEntry(
 function getEntryTypeLabel(type: EntryType): string {
   const labels: Record<EntryType, string> = {
     work_start: '業務開始',
-    work_end: '業務終了',
-    break_start: '休憩開始',
-    break_end: '休憩終了'
+    work_end: '業務終了'
   }
   return labels[type]
 }

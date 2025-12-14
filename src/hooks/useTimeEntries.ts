@@ -106,12 +106,10 @@ export function useTimeEntries(year?: number, month?: number) {
     await fetchEntries()
   }
 
-  const addMultipleEntries = async (data: {
+  const addSession = async (data: {
     date: string
     startTime: string
     endTime: string
-    breakStartTime?: string
-    breakEndTime?: string
     isEndTimeNextDay?: boolean
   }) => {
     if (!user) return
@@ -121,7 +119,6 @@ export function useTimeEntries(year?: number, month?: number) {
       entry_type: EntryType
       entry_time: string
       work_date: string
-      note?: string
     }[] = []
 
     const workStartTime = new Date(`${data.date}T${data.startTime}`)
@@ -134,7 +131,6 @@ export function useTimeEntries(year?: number, month?: number) {
     }
     const workEndTime = new Date(`${endDate}T${data.endTime}`)
 
-    // B案: 全エントリでwork_dateは開始日に統一
     entriesToInsert.push({
       user_id: user.id,
       entry_type: 'work_start',
@@ -149,78 +145,51 @@ export function useTimeEntries(year?: number, month?: number) {
       work_date: data.date,
     })
 
-    if (data.breakStartTime && data.breakEndTime) {
-      const breakStartTime = new Date(`${data.date}T${data.breakStartTime}`)
-      const breakEndTime = new Date(`${data.date}T${data.breakEndTime}`)
-
-      entriesToInsert.push({
-        user_id: user.id,
-        entry_type: 'break_start',
-        entry_time: breakStartTime.toISOString(),
-        work_date: data.date,
-      })
-
-      entriesToInsert.push({
-        user_id: user.id,
-        entry_type: 'break_end',
-        entry_time: breakEndTime.toISOString(),
-        work_date: data.date,
-      })
-    }
-
     const { error } = await supabase
       .from('time_entries')
       .insert(entriesToInsert)
 
     if (error) {
-      console.error('Error adding multiple entries:', error)
+      console.error('Error adding session:', error)
       throw error
     }
 
     await fetchEntries()
   }
 
-  const replaceEntriesForDate = async (data: {
+  const replaceSession = async (data: {
     date: string
     startTime: string
     endTime: string
-    breakStartTime?: string
-    breakEndTime?: string
     isEndTimeNextDay?: boolean
-    entryIds?: string[]
+    entryIds: string[]
   }) => {
     if (!user) return
 
-    // 既存エントリを削除（IDが指定されていればIDで、なければwork_dateで削除）
-    const { error: deleteError } = data.entryIds && data.entryIds.length > 0
-      ? await supabase
-          .from('time_entries')
-          .delete()
-          .eq('user_id', user.id)
-          .in('id', data.entryIds)
-      : await supabase
-          .from('time_entries')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('work_date', data.date)
+    // 既存エントリを削除
+    const { error: deleteError } = await supabase
+      .from('time_entries')
+      .delete()
+      .eq('user_id', user.id)
+      .in('id', data.entryIds)
 
     if (deleteError) {
       console.error('Error deleting existing entries:', deleteError)
       throw deleteError
     }
 
-    // 新しいエントリを追加
-    await addMultipleEntries(data)
+    // 新しいセッションを追加
+    await addSession(data)
   }
 
   return {
     entries,
     loading,
     addEntry,
-    addMultipleEntries,
+    addSession,
     updateEntry,
     deleteEntry,
-    replaceEntriesForDate,
+    replaceSession,
     refetch: fetchEntries,
   }
 }

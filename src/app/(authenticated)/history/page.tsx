@@ -15,7 +15,7 @@ export default function HistoryPage() {
   const [month, setMonth] = useState(currentDate.getMonth())
   const [isAddingEntry, setIsAddingEntry] = useState(false)
 
-  const { entries, loading, deleteEntry, addMultipleEntries, replaceEntriesForDate } = useTimeEntries(year, month)
+  const { entries, loading, deleteEntry, addSession, replaceSession } = useTimeEntries(year, month)
   const { settings, loading: settingsLoading } = useSettings()
   const dailyStats = useMemo(() => calculateDailyStats(entries), [entries])
 
@@ -57,13 +57,11 @@ export default function HistoryPage() {
     date: string
     startTime: string
     endTime: string
-    breakStartTime?: string
-    breakEndTime?: string
     isEndTimeNextDay?: boolean
-    entryIds?: string[]
+    entryIds: string[]
   }) => {
     try {
-      await replaceEntriesForDate(data)
+      await replaceSession(data)
       setEditingId(null)
     } catch (error) {
       console.error('更新エラー:', error)
@@ -83,7 +81,7 @@ export default function HistoryPage() {
   const handleDeleteConfirm = async () => {
     if (!deletingStat) return
     try {
-      // その日の全エントリを削除
+      // セッションの全エントリを削除
       for (const entry of deletingStat.entries) {
         await deleteEntry(entry.id)
       }
@@ -99,12 +97,10 @@ export default function HistoryPage() {
     date: string
     startTime: string
     endTime: string
-    breakStartTime?: string
-    breakEndTime?: string
     isEndTimeNextDay?: boolean
   }) => {
     try {
-      await addMultipleEntries(data)
+      await addSession(data)
       setIsAddingEntry(false)
     } catch (error) {
       console.error('追加エラー:', error)
@@ -115,12 +111,11 @@ export default function HistoryPage() {
   const handleExportCSV = () => {
     if (dailyStats.length === 0) return
 
-    const headers = ['日付', '開始時刻', '終了時刻', '休憩時間', '実働時間']
+    const headers = ['日付', '開始時刻', '終了時刻', '稼働時間']
     const rows = dailyStats.map((stat) => [
       stat.date,
       stat.workStart || '-',
       stat.workEnd || '-',
-      stat.breakMinutes > 0 ? `${Math.floor(stat.breakMinutes / 60)}:${String(stat.breakMinutes % 60).padStart(2, '0')}` : '-',
       stat.workMinutes > 0 ? `${Math.floor(stat.workMinutes / 60)}:${String(stat.workMinutes % 60).padStart(2, '0')}` : '-',
     ])
 
@@ -237,7 +232,7 @@ export default function HistoryPage() {
         }}
         onConfirm={handleDeleteConfirm}
         title="打刻を削除"
-        message={deletingStat ? `${deletingStat.dateStr}の打刻データを全て削除してもよろしいですか？` : ''}
+        message={deletingStat ? `${deletingStat.dateStr}のセッションを削除してもよろしいですか？` : ''}
         variant="danger"
         confirmText="削除"
         cancelText="キャンセル"

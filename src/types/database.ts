@@ -1,4 +1,4 @@
-export type EntryType = 'work_start' | 'work_end' | 'break_start' | 'break_end'
+export type EntryType = 'work_start' | 'work_end'
 
 export type TimeEntry = {
   id: string

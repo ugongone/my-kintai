@@ -10,8 +10,6 @@ type AddEntryRowProps = {
     date: string
     startTime: string
     endTime: string
-    breakStartTime?: string
-    breakEndTime?: string
     isEndTimeNextDay?: boolean
   }) => void
   onCancel: () => void
@@ -32,8 +30,6 @@ export function AddEntryRow({ year, month, onSave, onCancel }: AddEntryRowProps)
   const [date, setDate] = useState(formatDateForInput(maxDate))
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('18:00')
-  const [breakStartTime, setBreakStartTime] = useState('')
-  const [breakEndTime, setBreakEndTime] = useState('')
   const [isEndTimeNextDay, setIsEndTimeNextDay] = useState(false)
   const [error, setError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -52,36 +48,11 @@ export function AddEntryRow({ year, month, onSave, onCancel }: AddEntryRowProps)
       return
     }
 
-    // 休憩時刻のバリデーション
-    if ((breakStartTime && !breakEndTime) || (!breakStartTime && breakEndTime)) {
-      setError('休憩は開始と終了の両方を入力してください')
-      return
-    }
-
-    if (breakStartTime && breakEndTime) {
-      if (breakStartTime >= breakEndTime) {
-        setError('休憩終了は休憩開始より後にしてください')
-        return
-      }
-      // 翌日跨ぎでない場合のみ業務時間内チェック
-      if (!isEndTimeNextDay && (breakStartTime < startTime || breakEndTime > endTime)) {
-        setError('休憩時間は業務時間内にしてください')
-        return
-      }
-      // 翌日跨ぎの場合は開始時刻以降であればOK
-      if (isEndTimeNextDay && breakStartTime < startTime) {
-        setError('休憩開始は業務開始以降にしてください')
-        return
-      }
-    }
-
     setIsSaving(true)
     onSave({
       date,
       startTime,
       endTime,
-      breakStartTime: breakStartTime || undefined,
-      breakEndTime: breakEndTime || undefined,
       isEndTimeNextDay,
     })
   }
@@ -125,24 +96,6 @@ export function AddEntryRow({ year, month, onSave, onCancel }: AddEntryRowProps)
             />
             翌日
           </label>
-        </div>
-      </td>
-      <td className="px-6 py-3">
-        <div className="flex flex-col gap-1">
-          <input
-            type="time"
-            value={breakStartTime}
-            onChange={(e) => setBreakStartTime(e.target.value)}
-            placeholder="開始"
-            className="w-20 border border-blue-300 rounded px-2 py-1 text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
-          />
-          <input
-            type="time"
-            value={breakEndTime}
-            onChange={(e) => setBreakEndTime(e.target.value)}
-            placeholder="終了"
-            className="w-20 border border-blue-300 rounded px-2 py-1 text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
-          />
         </div>
       </td>
       <td className="px-6 py-3">

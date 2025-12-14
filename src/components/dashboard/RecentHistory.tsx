@@ -6,7 +6,6 @@ type WorkEntry = {
   date: string
   startTime: string
   endTime?: string
-  breakTime: number
   workTime: number
 }
 

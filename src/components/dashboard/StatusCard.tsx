@@ -1,15 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Clock, Play, Coffee, Square, Edit3 } from 'lucide-react'
+import { Clock, Play, Square, Edit3 } from 'lucide-react'
 
-type WorkStatus = 'offline' | 'working' | 'break'
+type WorkStatus = 'offline' | 'working'
 
 interface StatusCardProps {
   onPunchIn: () => void
   onPunchOut: () => void
-  onBreakStart: () => void
-  onBreakEnd: () => void
   onManualEntry: () => void
   currentStatus: WorkStatus
   lastEntryTime?: string
@@ -18,8 +16,6 @@ interface StatusCardProps {
 export function StatusCard({
   onPunchIn,
   onPunchOut,
-  onBreakStart,
-  onBreakEnd,
   onManualEntry,
   currentStatus,
 }: StatusCardProps) {
@@ -79,31 +75,12 @@ export function StatusCard({
           )}
 
           {currentStatus === 'working' && (
-            <>
-              <button
-                onClick={onBreakStart}
-                className="flex-1 min-w-[140px] bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-orange-200 transition-all active:scale-95 flex flex-col items-center justify-center gap-2"
-              >
-                <Coffee size={24} />
-                休憩開始
-              </button>
-              <button
-                onClick={onPunchOut}
-                className="flex-1 min-w-[140px] bg-slate-700 hover:bg-slate-800 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-slate-300 transition-all active:scale-95 flex flex-col items-center justify-center gap-2"
-              >
-                <Square size={24} />
-                業務終了
-              </button>
-            </>
-          )}
-
-          {currentStatus === 'break' && (
             <button
-              onClick={onBreakEnd}
-              className="flex-1 min-w-[140px] bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-green-200 transition-all active:scale-95 flex flex-col items-center justify-center gap-2"
+              onClick={onPunchOut}
+              className="flex-1 min-w-[140px] bg-slate-700 hover:bg-slate-800 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-slate-300 transition-all active:scale-95 flex flex-col items-center justify-center gap-2"
             >
-              <Play size={24} />
-              休憩終了
+              <Square size={24} />
+              業務終了
             </button>
           )}
         </div>
@@ -124,18 +101,11 @@ export function StatusCard({
           className={`h-3 w-3 rounded-full ${
             currentStatus === 'working'
               ? 'bg-green-500 animate-pulse'
-              : currentStatus === 'break'
-                ? 'bg-orange-400'
-                : 'bg-slate-300'
+              : 'bg-slate-300'
           }`}
         ></span>
         <span className="text-sm text-slate-500 font-medium">
-          ステータス:{' '}
-          {currentStatus === 'working'
-            ? '稼働中'
-            : currentStatus === 'break'
-              ? '休憩中'
-              : '稼働外'}
+          ステータス: {currentStatus === 'working' ? '稼働中' : '稼働外'}
         </span>
       </div>
     </div>

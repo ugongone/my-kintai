@@ -102,8 +102,6 @@ export function ManualEntryModal({
           >
             <option value="work_start">業務開始</option>
             <option value="work_end">業務終了</option>
-            <option value="break_start">休憩開始</option>
-            <option value="break_end">休憩終了</option>
           </select>
         </div>
 

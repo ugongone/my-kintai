@@ -141,14 +141,15 @@ CREATE TABLE public.profiles (
 ```
 
 #### time_entries テーブル
-打刻記録を格納。
+打刻記録を格納。`work_start`と`work_end`のペアで1セッションを表す。1日に複数セッション登録可能。
 
 ```sql
 CREATE TABLE public.time_entries (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  entry_type TEXT NOT NULL CHECK (entry_type IN ('work_start', 'work_end', 'break_start', 'break_end')),
-  timestamp TIMESTAMPTZ NOT NULL,
+  entry_type TEXT NOT NULL CHECK (entry_type IN ('work_start', 'work_end')),
+  entry_time TIMESTAMPTZ NOT NULL,
+  work_date DATE NOT NULL,
   note TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -156,18 +157,25 @@ CREATE TABLE public.time_entries (
 
 -- インデックス
 CREATE INDEX idx_time_entries_user_id ON public.time_entries(user_id);
-CREATE INDEX idx_time_entries_timestamp ON public.time_entries(timestamp);
+CREATE INDEX idx_time_entries_entry_time ON public.time_entries(entry_time);
+CREATE INDEX idx_time_entries_work_date ON public.time_entries(work_date);
 ```
 
 | カラム | 型 | 説明 |
 |--------|-----|------|
 | id | UUID | 主キー |
 | user_id | UUID | ユーザーID（外部キー） |
-| entry_type | TEXT | 打刻種別: `work_start`, `work_end`, `break_start`, `break_end` |
-| timestamp | TIMESTAMPTZ | 打刻日時 |
+| entry_type | TEXT | 打刻種別: `work_start`, `work_end` |
+| entry_time | TIMESTAMPTZ | 打刻日時 |
+| work_date | DATE | 勤務日（0-4時は前日扱い） |
 | note | TEXT | 備考（作業内容など） |
 | created_at | TIMESTAMPTZ | レコード作成日時 |
 | updated_at | TIMESTAMPTZ | レコード更新日時 |
+
+**セッションの概念:**
+- `work_start` → `work_end` で1セッション（1回の稼働）
+- 1日に複数セッション登録可能（例: 9:00-12:00, 13:00-18:00）
+- 休憩 = セッション間の空白時間として自動計算
 
 #### settings テーブル
 ユーザーごとの設定を格納。

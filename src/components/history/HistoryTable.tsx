@@ -15,10 +15,8 @@ type HistoryTableProps = {
     date: string
     startTime: string
     endTime: string
-    breakStartTime?: string
-    breakEndTime?: string
     isEndTimeNextDay?: boolean
-    entryIds?: string[]
+    entryIds: string[]
   }) => void
   onCancelEdit: () => void
   editingId: string | null
@@ -26,8 +24,6 @@ type HistoryTableProps = {
     date: string
     startTime: string
     endTime: string
-    breakStartTime?: string
-    breakEndTime?: string
     isEndTimeNextDay?: boolean
   }) => void
   isAddingEntry?: boolean
@@ -51,8 +47,7 @@ export function HistoryTable({
     date: string
     startTime: string
     endTime: string
-    breakStartTime?: string
-    breakEndTime?: string
+    isEndTimeNextDay?: boolean
   }) => {
     onAddEntry(data)
   }
@@ -84,8 +79,7 @@ export function HistoryTable({
               <th className="px-6 py-4 font-medium">日付</th>
               <th className="px-6 py-4 font-medium">開始</th>
               <th className="px-6 py-4 font-medium">終了</th>
-              <th className="px-6 py-4 font-medium">休憩</th>
-              <th className="px-6 py-4 font-medium">実働時間</th>
+              <th className="px-6 py-4 font-medium">稼働時間</th>
               {isEditing && <th className="px-6 py-4 font-medium">備考</th>}
               <th className="px-6 py-4 font-medium">操作</th>
             </tr>
@@ -122,9 +116,6 @@ export function HistoryTable({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-slate-600">
                     {stat.workEnd || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-slate-600">
-                    {stat.breakMinutes > 0 ? formatMinutesToHours(stat.breakMinutes) : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap font-bold text-slate-700">
                     {stat.workMinutes > 0 ? formatMinutesToHours(stat.workMinutes) : '-'}

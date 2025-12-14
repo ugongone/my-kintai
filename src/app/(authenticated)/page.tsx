@@ -30,7 +30,6 @@ export default function Home() {
     date: stat.dateStr,
     startTime: stat.workStart || '-',
     endTime: stat.workEnd,
-    breakTime: stat.breakMinutes,
     workTime: stat.workMinutes,
   }))
 
@@ -84,56 +83,6 @@ export default function Home() {
     }
   }
 
-  const handleBreakStart = async () => {
-    try {
-      const errors = validateNewEntry('break_start', new Date(), entries)
-      const criticalErrors = errors.filter(e => e.severity === 'error')
-
-      if (criticalErrors.length > 0) {
-        alert(criticalErrors.map(e => e.message).join('\n'))
-        return
-      }
-
-      const warnings = errors.filter(e => e.severity === 'warning')
-      if (warnings.length > 0) {
-        const confirmed = confirm(
-          warnings.map(e => e.message).join('\n') + '\n\n続行しますか？'
-        )
-        if (!confirmed) return
-      }
-
-      await addEntry('break_start')
-    } catch (error) {
-      console.error('打刻エラー:', error)
-      alert('打刻に失敗しました')
-    }
-  }
-
-  const handleBreakEnd = async () => {
-    try {
-      const errors = validateNewEntry('break_end', new Date(), entries)
-      const criticalErrors = errors.filter(e => e.severity === 'error')
-
-      if (criticalErrors.length > 0) {
-        alert(criticalErrors.map(e => e.message).join('\n'))
-        return
-      }
-
-      const warnings = errors.filter(e => e.severity === 'warning')
-      if (warnings.length > 0) {
-        const confirmed = confirm(
-          warnings.map(e => e.message).join('\n') + '\n\n続行しますか？'
-        )
-        if (!confirmed) return
-      }
-
-      await addEntry('break_end')
-    } catch (error) {
-      console.error('打刻エラー:', error)
-      alert('打刻に失敗しました')
-    }
-  }
-
   const handleManualEntry = async (data: {
     date: string
     time: string
@@ -151,7 +100,7 @@ export default function Home() {
         return
       }
 
-      await addEntry(data.entryType as any, entryTime, data.note)
+      await addEntry(data.entryType as EntryType, entryTime, data.note)
     } catch (error) {
       console.error('手動打刻エラー:', error)
       alert('手動打刻に失敗しました')
@@ -176,8 +125,6 @@ export default function Home() {
             lastEntryTime={lastEntryTime}
             onPunchIn={handlePunchIn}
             onPunchOut={handlePunchOut}
-            onBreakStart={handleBreakStart}
-            onBreakEnd={handleBreakEnd}
             onManualEntry={() => setIsModalOpen(true)}
           />
         </div>

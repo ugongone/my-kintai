@@ -1,6 +1,6 @@
-import type { TimeEntry, EntryType } from '@/types/database'
+import type { TimeEntry } from '@/types/database'
 
-export type WorkStatus = 'offline' | 'working' | 'break'
+export type WorkStatus = 'offline' | 'working'
 
 export function getCurrentStatus(entries: TimeEntry[]): WorkStatus {
   if (entries.length === 0) return 'offline'
@@ -8,11 +8,8 @@ export function getCurrentStatus(entries: TimeEntry[]): WorkStatus {
   const latest = entries[0]
   const latestType = latest.entry_type
 
-  if (latestType === 'work_start' || latestType === 'break_end') {
+  if (latestType === 'work_start') {
     return 'working'
-  }
-  if (latestType === 'break_start') {
-    return 'break'
   }
   return 'offline'
 }
@@ -31,11 +28,9 @@ export function getLastEntryTime(entries: TimeEntry[]): string | undefined {
 
 export function calculateWorkTime(entries: TimeEntry[]): {
   totalMinutes: number
-  breakMinutes: number
   workMinutes: number
 } {
   let totalMinutes = 0
-  let breakMinutes = 0
 
   const today = new Date()
   const todayEntries = entries.filter((entry) => {
@@ -44,7 +39,6 @@ export function calculateWorkTime(entries: TimeEntry[]): {
   })
 
   let workStart: Date | null = null
-  let breakStart: Date | null = null
 
   for (let i = todayEntries.length - 1; i >= 0; i--) {
     const entry = todayEntries[i]
@@ -52,12 +46,6 @@ export function calculateWorkTime(entries: TimeEntry[]): {
 
     if (entry.entry_type === 'work_start') {
       workStart = entryTime
-    } else if (entry.entry_type === 'break_start' && workStart) {
-      breakStart = entryTime
-    } else if (entry.entry_type === 'break_end' && breakStart) {
-      const breakDuration = (entryTime.getTime() - breakStart.getTime()) / 60000
-      breakMinutes += breakDuration
-      breakStart = null
     } else if (entry.entry_type === 'work_end' && workStart) {
       const workDuration = (entryTime.getTime() - workStart.getTime()) / 60000
       totalMinutes += workDuration
@@ -69,19 +57,11 @@ export function calculateWorkTime(entries: TimeEntry[]): {
     const now = new Date()
     const workDuration = (now.getTime() - workStart.getTime()) / 60000
     totalMinutes += workDuration
-
-    if (breakStart) {
-      const breakDuration = (now.getTime() - breakStart.getTime()) / 60000
-      breakMinutes += breakDuration
-    }
   }
-
-  const workMinutes = totalMinutes - breakMinutes
 
   return {
     totalMinutes,
-    breakMinutes,
-    workMinutes,
+    workMinutes: totalMinutes,
   }
 }
 

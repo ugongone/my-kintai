@@ -6,7 +6,6 @@ export type DailyStat = {
   dateStr: string
   workStart?: string
   workEnd?: string
-  breakMinutes: number
   workMinutes: number
   entries: TimeEntry[]
 }
@@ -14,7 +13,7 @@ export type DailyStat = {
 export function calculateDailyStats(entries: TimeEntry[]): DailyStat[] {
   const dailyMap = new Map<string, TimeEntry[]>()
 
-  // work_dateでグループ化（B案: 全エントリが同じwork_dateを持つ）
+  // work_dateでグループ化
   entries.forEach((entry) => {
     const dateKey = entry.work_date
 
@@ -31,22 +30,18 @@ export function calculateDailyStats(entries: TimeEntry[]): DailyStat[] {
       new Date(a.entry_time).getTime() - new Date(b.entry_time).getTime()
     )
 
-    // セッション単位で計算（エントリも追跡）
+    // セッション単位で計算
     const sessions: Array<{
-      id: string  // work_startエントリのID
+      id: string
       workStart: Date
       workEnd: Date | null
-      breakMinutes: number
       workMinutes: number
       entries: TimeEntry[]
     }> = []
 
     let currentSession: {
       id: string
-      workStart: Date | null
-      workEnd: Date | null
-      breakStart: Date | null
-      breakMinutes: number
+      workStart: Date
       entries: TimeEntry[]
     } | null = null
 
@@ -55,19 +50,14 @@ export function calculateDailyStats(entries: TimeEntry[]): DailyStat[] {
 
       if (entry.entry_type === 'work_start') {
         // 前のセッションが未完了なら現在時刻で終了
-        if (currentSession && currentSession.workStart && !currentSession.workEnd) {
+        if (currentSession) {
           const now = new Date()
-          let breakMinutes = currentSession.breakMinutes
-          if (currentSession.breakStart) {
-            breakMinutes += (now.getTime() - currentSession.breakStart.getTime()) / 60000
-          }
           const duration = (now.getTime() - currentSession.workStart.getTime()) / 60000
           sessions.push({
             id: currentSession.id,
             workStart: currentSession.workStart,
             workEnd: null,
-            breakMinutes,
-            workMinutes: duration - breakMinutes,
+            workMinutes: duration,
             entries: currentSession.entries
           })
         }
@@ -75,29 +65,16 @@ export function calculateDailyStats(entries: TimeEntry[]): DailyStat[] {
         currentSession = {
           id: entry.id,
           workStart: entryTime,
-          workEnd: null,
-          breakStart: null,
-          breakMinutes: 0,
           entries: [entry]
         }
-      } else if (entry.entry_type === 'break_start' && currentSession?.workStart) {
-        currentSession.breakStart = entryTime
-        currentSession.entries.push(entry)
-      } else if (entry.entry_type === 'break_end' && currentSession?.breakStart) {
-        const breakDuration = (entryTime.getTime() - currentSession.breakStart.getTime()) / 60000
-        currentSession.breakMinutes += breakDuration
-        currentSession.breakStart = null
-        currentSession.entries.push(entry)
-      } else if (entry.entry_type === 'work_end' && currentSession?.workStart) {
-        currentSession.workEnd = entryTime
+      } else if (entry.entry_type === 'work_end' && currentSession) {
         currentSession.entries.push(entry)
         const duration = (entryTime.getTime() - currentSession.workStart.getTime()) / 60000
         sessions.push({
           id: currentSession.id,
           workStart: currentSession.workStart,
-          workEnd: currentSession.workEnd,
-          breakMinutes: currentSession.breakMinutes,
-          workMinutes: duration - currentSession.breakMinutes,
+          workEnd: entryTime,
+          workMinutes: duration,
           entries: currentSession.entries
         })
         currentSession = null
@@ -105,19 +82,14 @@ export function calculateDailyStats(entries: TimeEntry[]): DailyStat[] {
     }
 
     // 最後のセッションが未完了の場合
-    if (currentSession && currentSession.workStart && !currentSession.workEnd) {
+    if (currentSession) {
       const now = new Date()
-      let breakMinutes = currentSession.breakMinutes
-      if (currentSession.breakStart) {
-        breakMinutes += (now.getTime() - currentSession.breakStart.getTime()) / 60000
-      }
       const duration = (now.getTime() - currentSession.workStart.getTime()) / 60000
       sessions.push({
         id: currentSession.id,
         workStart: currentSession.workStart,
         workEnd: null,
-        breakMinutes,
-        workMinutes: duration - breakMinutes,
+        workMinutes: duration,
         entries: currentSession.entries
       })
     }
@@ -133,14 +105,18 @@ export function calculateDailyStats(entries: TimeEntry[]): DailyStat[] {
         dateStr,
         workStart: formatTime(session.workStart),
         workEnd: session.workEnd ? formatTimeWithNextDay(session.workEnd, dateKey) : undefined,
-        breakMinutes: Math.round(session.breakMinutes),
         workMinutes: Math.round(session.workMinutes),
         entries: session.entries,
       })
     }
   })
 
-  return stats.sort((a, b) => b.date.localeCompare(a.date))
+  // 日付降順、同日内は開始時刻昇順でソート
+  return stats.sort((a, b) => {
+    const dateCompare = b.date.localeCompare(a.date)
+    if (dateCompare !== 0) return dateCompare
+    return (a.workStart || '').localeCompare(b.workStart || '')
+  })
 }
 
 function formatTime(date: Date): string {
@@ -148,11 +124,9 @@ function formatTime(date: Date): string {
 }
 
 function formatTimeWithNextDay(date: Date, workDate: string): string {
-  // 終了時刻の日付がwork_dateの翌日かどうか判定
   const endDateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 
   if (endDateStr > workDate) {
-    // 翌日の場合は24+時間で表示（例: 1:00 → 25:00）
     const hours = date.getHours() + 24
     return `${hours}:${String(date.getMinutes()).padStart(2, '0')}`
   }
