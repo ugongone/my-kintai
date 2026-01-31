@@ -142,67 +142,96 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* サマリーカード */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-slate-500 text-sm mb-1">総稼働時間</p>
-            <div className="flex items-end gap-2">
-              <span className="text-3xl font-bold text-slate-800 tracking-tight">
-                {totalWorkHours.toFixed(1)}
-              </span>
-              <span className="text-sm text-slate-400 font-medium mb-1">時間</span>
+    <div className="space-y-6 animate-fade-in max-w-5xl mx-auto pb-12">
+      {/* 1. タイトル & 2. 月選択 */}
+      <div className="flex flex-col items-center justify-center gap-4 pt-6 pb-2">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-slate-800 flex items-center justify-center gap-3">
+            <div className="p-2 bg-blue-100/50 rounded-xl text-blue-600 shadow-sm ring-1 ring-blue-100">
+              <Calendar size={24} strokeWidth={2.5} />
             </div>
-          </div>
-          <div className="bg-blue-50 p-3 rounded-full text-blue-600">
-            <Clock size={24} />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-slate-500 text-sm mb-1">概算報酬額</p>
-            <div className="flex items-end gap-2 text-blue-600">
-              <span className="text-3xl font-bold tracking-tight">
-                {estimatedPayment.toLocaleString()}
-              </span>
-              <span className="text-sm text-blue-400 font-medium mb-1">円</span>
-            </div>
-          </div>
-          <div className="bg-orange-50 p-3 rounded-full text-orange-600">
-            <JapaneseYen size={24} />
-          </div>
-        </div>
-      </div>
-
-      {/* テーブル */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-100">
-        <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
-          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <Calendar className="text-blue-600" />
-            月次稼働実績
+            <span className="tracking-tight">月次稼働実績</span>
           </h2>
+          <p className="text-slate-500 text-sm mt-2 font-medium">
+            月ごとの稼働状況と報酬見積もりを確認できます
+          </p>
+        </div>
 
+        <div className="bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200/60 ring-4 ring-slate-50/50">
           <MonthSelector
             year={year}
             month={month}
             onPrevMonth={handlePrevMonth}
             onNextMonth={handleNextMonth}
           />
+        </div>
+      </div>
 
-          <div className="flex gap-2">
+      {/* 3 & 4. サマリーカード (総稼働時間 -> 概算報酬額) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* 総稼働時間 */}
+        <div className="group relative bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+          <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Clock size={120} className="text-blue-600 transform rotate-12 translate-x-10 -translate-y-10" />
+          </div>
+
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2.5 bg-blue-50 rounded-xl text-blue-600 group-hover:scale-110 transition-transform duration-300">
+                <Clock size={20} />
+              </div>
+              <p className="text-slate-500 font-bold text-sm tracking-wide uppercase">総稼働時間</p>
+            </div>
+
+            <div className="flex items-baseline gap-2 mt-4">
+              <span className="text-5xl font-extrabold text-slate-800 tracking-tighter tabular-nums bg-gradient-to-br from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                {totalWorkHours.toFixed(1)}
+              </span>
+              <span className="text-lg text-slate-400 font-bold">hours</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 概算報酬額 */}
+        <div className="group relative bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+          <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+            <JapaneseYen size={120} className="text-orange-500 transform -rotate-12 translate-x-10 -translate-y-10" />
+          </div>
+
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2.5 bg-orange-50 rounded-xl text-orange-600 group-hover:scale-110 transition-transform duration-300">
+                <JapaneseYen size={20} />
+              </div>
+              <p className="text-slate-500 font-bold text-sm tracking-wide uppercase">概算報酬額</p>
+            </div>
+
+            <div className="flex items-baseline gap-2 mt-4">
+              <span className="text-5xl font-extrabold text-slate-800 tracking-tighter tabular-nums bg-gradient-to-br from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                {estimatedPayment.toLocaleString()}
+              </span>
+              <span className="text-lg text-slate-400 font-bold">yen</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. 打刻追加の表 */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/30 flex justify-between items-center gap-4">
+          <h3 className="font-bold text-slate-700">実績一覧</h3>
+          <div className="flex gap-3">
             <button
               onClick={() => setIsAddingEntry(true)}
-              className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-sm hover:shadow group"
             >
-              <Plus size={16} />
+              <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
               打刻を追加
             </button>
             <button
               onClick={handleExportCSV}
               disabled={dailyStats.length === 0}
-              className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 bg-white text-slate-600 border border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
             >
               CSV出力
             </button>
