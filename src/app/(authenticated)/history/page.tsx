@@ -142,19 +142,16 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in max-w-5xl mx-auto pb-12">
+    <div className="space-y-4 animate-fade-in max-w-5xl mx-auto pb-12">
       {/* 1. タイトル & 2. 月選択 */}
-      <div className="flex flex-col items-center justify-center gap-4 pt-6 pb-2">
+      <div className="flex flex-col items-center justify-center gap-4 pt-2 pb-0">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-slate-800 flex items-center justify-center gap-3">
+          <h2 className="text-xl font-bold text-slate-800 flex items-center justify-center gap-3">
             <div className="p-2 bg-blue-100/50 rounded-xl text-blue-600 shadow-sm ring-1 ring-blue-100">
-              <Calendar size={24} strokeWidth={2.5} />
+              <Calendar size={20} strokeWidth={2.5} />
             </div>
             <span className="tracking-tight">月次稼働実績</span>
           </h2>
-          <p className="text-slate-500 text-sm mt-2 font-medium">
-            月ごとの稼働状況と報酬見積もりを確認できます
-          </p>
         </div>
 
         <div className="bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200/60 ring-4 ring-slate-50/50">
@@ -168,49 +165,41 @@ export default function HistoryPage() {
       </div>
 
       {/* 3 & 4. サマリーカード (総稼働時間 -> 概算報酬額) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-3 md:gap-6">
         {/* 総稼働時間 */}
-        <div className="group relative bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
-          <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Clock size={120} className="text-blue-600 transform rotate-12 translate-x-10 -translate-y-10" />
-          </div>
-
+        <div className="group relative bg-white p-4 md:p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2.5 bg-blue-50 rounded-xl text-blue-600 group-hover:scale-110 transition-transform duration-300">
-                <Clock size={20} />
+            <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+              <div className="p-1.5 md:p-2.5 bg-blue-50 rounded-lg md:rounded-xl text-blue-600 group-hover:scale-110 transition-transform duration-300">
+                <Clock className="w-4 h-4 md:w-5 md:h-5" />
               </div>
-              <p className="text-slate-500 font-bold text-sm tracking-wide uppercase">総稼働時間</p>
+              <p className="text-slate-500 font-bold text-xs md:text-sm tracking-wide uppercase">総稼働時間</p>
             </div>
 
-            <div className="flex items-baseline gap-2 mt-4">
-              <span className="text-5xl font-extrabold text-slate-800 tracking-tighter tabular-nums bg-gradient-to-br from-slate-800 to-slate-600 bg-clip-text text-transparent">
+            <div className="flex items-baseline gap-1 md:gap-2 mt-2 md:mt-4">
+              <span className="text-2xl md:text-5xl font-extrabold text-slate-800 tracking-tighter tabular-nums bg-gradient-to-br from-slate-800 to-slate-600 bg-clip-text text-transparent">
                 {totalWorkHours.toFixed(1)}
               </span>
-              <span className="text-lg text-slate-400 font-bold">hours</span>
+              <span className="text-xs md:text-lg text-slate-400 font-bold">hours</span>
             </div>
           </div>
         </div>
 
         {/* 概算報酬額 */}
-        <div className="group relative bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
-          <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-            <JapaneseYen size={120} className="text-orange-500 transform -rotate-12 translate-x-10 -translate-y-10" />
-          </div>
-
+        <div className="group relative bg-white p-4 md:p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2.5 bg-orange-50 rounded-xl text-orange-600 group-hover:scale-110 transition-transform duration-300">
-                <JapaneseYen size={20} />
+            <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+              <div className="p-1.5 md:p-2.5 bg-orange-50 rounded-lg md:rounded-xl text-orange-600 group-hover:scale-110 transition-transform duration-300">
+                <JapaneseYen className="w-4 h-4 md:w-5 md:h-5" />
               </div>
-              <p className="text-slate-500 font-bold text-sm tracking-wide uppercase">概算報酬額</p>
+              <p className="text-slate-500 font-bold text-xs md:text-sm tracking-wide uppercase">概算報酬額</p>
             </div>
 
-            <div className="flex items-baseline gap-2 mt-4">
-              <span className="text-5xl font-extrabold text-slate-800 tracking-tighter tabular-nums bg-gradient-to-br from-slate-800 to-slate-600 bg-clip-text text-transparent">
+            <div className="flex items-baseline gap-1 md:gap-2 mt-2 md:mt-4">
+              <span className="text-2xl md:text-5xl font-extrabold text-slate-800 tracking-tighter tabular-nums bg-gradient-to-br from-slate-800 to-slate-600 bg-clip-text text-transparent">
                 {estimatedPayment.toLocaleString()}
               </span>
-              <span className="text-lg text-slate-400 font-bold">yen</span>
+              <span className="text-xs md:text-lg text-slate-400 font-bold">yen</span>
             </div>
           </div>
         </div>
@@ -218,20 +207,20 @@ export default function HistoryPage() {
 
       {/* 5. 打刻追加の表 */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/30 flex justify-between items-center gap-4">
-          <h3 className="font-bold text-slate-700">実績一覧</h3>
-          <div className="flex gap-3">
+        <div className="px-4 py-3 md:px-6 md:py-4 border-b border-slate-100 bg-slate-50/30 flex justify-between items-center gap-3">
+          <h3 className="font-bold text-slate-700 text-sm md:text-base whitespace-nowrap">実績一覧</h3>
+          <div className="flex gap-2 md:gap-3">
             <button
               onClick={() => setIsAddingEntry(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-sm hover:shadow group"
+              className="flex items-center gap-1.5 px-3 py-2 md:px-5 md:py-2.5 bg-blue-600 text-white rounded-lg md:rounded-xl text-xs md:text-sm font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-sm hover:shadow group whitespace-nowrap"
             >
-              <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
+              <Plus className="w-4 h-4 md:w-[18px] md:h-[18px] group-hover:rotate-90 transition-transform duration-300" />
               打刻を追加
             </button>
             <button
               onClick={handleExportCSV}
               disabled={dailyStats.length === 0}
-              className="px-5 py-2.5 bg-white text-slate-600 border border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+              className="px-3 py-2 md:px-5 md:py-2.5 bg-white text-slate-600 border border-slate-200 rounded-lg md:rounded-xl text-xs md:text-sm font-bold hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 whitespace-nowrap"
             >
               CSV出力
             </button>
