@@ -15,8 +15,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { user, signOut } = useAuth()
 
   const menuItems = [
-    { href: '/', label: '打刻・ホーム', icon: Clock },
-    { href: '/history', label: '月次実績', icon: Calendar },
+    { href: '/stamping', label: '打刻', icon: Clock },
+    { href: '/', label: '月次実績', icon: Calendar },
     { href: '/settings', label: '設定', icon: Settings },
   ]
 
@@ -67,10 +67,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   onClick={onClose}
                   className={`
                     flex items-center space-x-3 w-full p-3 rounded-lg transition-colors duration-200
-                    ${
-                      active
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'text-slate-500 hover:bg-slate-100'
+                    ${active
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'text-slate-500 hover:bg-slate-100'
                     }
                   `}
                 >
