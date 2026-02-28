@@ -119,7 +119,11 @@ export default function HistoryPage() {
       stat.workMinutes > 0 ? `${Math.floor(stat.workMinutes / 60)}:${String(stat.workMinutes % 60).padStart(2, '0')}` : '-',
     ])
 
-    const csvContent = [headers, ...rows]
+    const totalHours = Math.floor(totalWorkMinutes / 60)
+    const totalMins = String(totalWorkMinutes % 60).padStart(2, '0')
+    const summaryRow = ['合計', '', '', `${totalHours}:${totalMins}`]
+
+    const csvContent = [headers, ...rows, [], summaryRow]
       .map((row) => row.join(','))
       .join('\n')
 
