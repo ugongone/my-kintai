@@ -6,24 +6,26 @@ import { ManualEntryModal } from '@/components/dashboard/ManualEntryModal'
 import { SummaryCard } from '@/components/dashboard/SummaryCard'
 import { RecentHistory } from '@/components/dashboard/RecentHistory'
 import { useTimeEntries } from '@/hooks/useTimeEntries'
-import { useSettings } from '@/hooks/useSettings'
+import { useHourlyRates } from '@/hooks/useHourlyRates'
 import { getCurrentStatus, getLastEntryTime } from '@/lib/utils/workStatus'
 import { calculateDailyStats } from '@/lib/utils/dailyStats'
+import { calculatePayment, resolveHourlyRate } from '@/lib/utils/hourlyRate'
+import { calculateWorkDate } from '@/lib/utils/workDate'
 import { validateNewEntry } from '@/lib/utils/validation'
 import type { EntryType } from '@/types/database'
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { entries, loading: entriesLoading, addEntry } = useTimeEntries()
-  const { settings } = useSettings()
+  const { rates } = useHourlyRates()
 
   const currentStatus = getCurrentStatus(entries)
   const lastEntryTime = getLastEntryTime(entries)
   const dailyStats = useMemo(() => calculateDailyStats(entries), [entries])
   const totalWorkMinutes = dailyStats.reduce((sum, stat) => sum + stat.workMinutes, 0)
   const totalHours = totalWorkMinutes / 60
-  const hourlyRate = settings?.hourly_rate || 0
-  const estimatedEarnings = totalHours * hourlyRate
+  const hourlyRate = resolveHourlyRate(rates, calculateWorkDate(new Date()))
+  const estimatedEarnings = calculatePayment(dailyStats, rates)
 
   const recentEntries = dailyStats.slice(0, 3).map((stat) => ({
     id: stat.id,

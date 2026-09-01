@@ -112,16 +112,16 @@ my-kintai/
 ### 3.1 ER図
 
 ```
-┌─────────────┐       ┌─────────────────┐       ┌──────────────┐
-│   users     │       │  time_entries   │       │   settings   │
-├─────────────┤       ├─────────────────┤       ├──────────────┤
-│ id (PK)     │──────<│ id (PK)         │       │ id (PK)      │
-│ email       │       │ user_id (FK)    │>──────│ user_id (FK) │
-│ name        │       │ entry_type      │       │ hourly_wage  │
-│ avatar_url  │       │ timestamp       │       │ created_at   │
-│ created_at  │       │ note            │       │ updated_at   │
-└─────────────┘       │ created_at      │       └──────────────┘
-                      └─────────────────┘
+┌─────────────┐       ┌─────────────────┐       ┌────────────────┐
+│   users     │       │  time_entries   │       │  hourly_rates  │
+├─────────────┤       ├─────────────────┤       ├────────────────┤
+│ id (PK)     │──────<│ id (PK)         │       │ id (PK)        │
+│ email       │       │ user_id (FK)    │>─────<│ user_id (FK)   │
+│ name        │       │ entry_type      │       │ hourly_rate    │
+│ avatar_url  │       │ timestamp       │       │ effective_from │
+│ created_at  │       │ note            │       │ created_at     │
+└─────────────┘       │ created_at      │       │ updated_at     │
+                      └─────────────────┘       └────────────────┘
 ```
 
 ### 3.2 テーブル定義
@@ -177,26 +177,37 @@ CREATE INDEX idx_time_entries_work_date ON public.time_entries(work_date);
 - 1日に複数セッション登録可能（例: 9:00-12:00, 13:00-18:00）
 - 休憩 = セッション間の空白時間として自動計算
 
-#### settings テーブル
-ユーザーごとの設定を格納。
+#### hourly_rates テーブル
+ユーザーごとの時給を、適用開始日つきの履歴として格納。
+1ユーザーが複数レコードを持ち、稼働日に応じて適用される時給が決まる。
 
 ```sql
-CREATE TABLE public.settings (
+CREATE TABLE public.hourly_rates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
-  hourly_wage INTEGER NOT NULL DEFAULT 1000,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  hourly_rate INTEGER NOT NULL CHECK (hourly_rate >= 0),
+  effective_from DATE NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (user_id, effective_from)
 );
 ```
 
 | カラム | 型 | 説明 |
 |--------|-----|------|
 | id | UUID | 主キー |
-| user_id | UUID | ユーザーID（ユニーク） |
-| hourly_wage | INTEGER | 時給（円） |
+| user_id | UUID | ユーザーID |
+| hourly_rate | INTEGER | 時給（円） |
+| effective_from | DATE | この時給の適用開始日 |
 | created_at | TIMESTAMPTZ | レコード作成日時 |
 | updated_at | TIMESTAMPTZ | レコード更新日時 |
+
+**時給の解決ルール:**
+- 稼働日(`work_date`)以前で最も新しい`effective_from`のレコードを適用する
+- 該当がなければ最も古いレコードにフォールバックする
+- 初期時給は`effective_from = 2000-01-01`として登録される
+
+> 旧`settings`テーブル（`hourly_rate`のみ保持）は本テーブルへ移行済みで、アプリからは参照しない。
 
 ### 3.3 Row Level Security (RLS)
 
@@ -222,19 +233,23 @@ CREATE POLICY "Users can delete own entries"
   ON public.time_entries FOR DELETE
   USING (auth.uid() = user_id);
 
--- settings RLS
-ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
+-- hourly_rates RLS
+ALTER TABLE public.hourly_rates ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view own settings"
-  ON public.settings FOR SELECT
+CREATE POLICY "Users can view own hourly rates"
+  ON public.hourly_rates FOR SELECT
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert own settings"
-  ON public.settings FOR INSERT
+CREATE POLICY "Users can insert own hourly rates"
+  ON public.hourly_rates FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can update own settings"
-  ON public.settings FOR UPDATE
+CREATE POLICY "Users can update own hourly rates"
+  ON public.hourly_rates FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own hourly rates"
+  ON public.hourly_rates FOR DELETE
   USING (auth.uid() = user_id);
 ```
 

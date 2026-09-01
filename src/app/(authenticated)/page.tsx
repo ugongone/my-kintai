@@ -2,10 +2,11 @@
 
 import { useState, useMemo } from 'react'
 import { useTimeEntries } from '@/hooks/useTimeEntries'
-import { useSettings } from '@/hooks/useSettings'
+import { useHourlyRates } from '@/hooks/useHourlyRates'
 import { MonthSelector } from '@/components/history/MonthSelector'
 import { HistoryTable } from '@/components/history/HistoryTable'
 import { calculateDailyStats, type DailyStat } from '@/lib/utils/dailyStats'
+import { calculatePayment } from '@/lib/utils/hourlyRate'
 import { Calendar, Clock, JapaneseYen, Plus } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
@@ -16,7 +17,7 @@ export default function HistoryPage() {
   const [isAddingEntry, setIsAddingEntry] = useState(false)
 
   const { entries, loading, deleteEntry, addSession, replaceSession } = useTimeEntries(year, month)
-  const { settings, loading: settingsLoading } = useSettings()
+  const { rates, loading: ratesLoading } = useHourlyRates()
   const dailyStats = useMemo(() => calculateDailyStats(entries), [entries])
 
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -25,7 +26,7 @@ export default function HistoryPage() {
 
   const totalWorkMinutes = dailyStats.reduce((sum, stat) => sum + stat.workMinutes, 0)
   const totalWorkHours = totalWorkMinutes / 60
-  const estimatedPayment = settings ? (totalWorkHours * settings.hourly_rate) : 0
+  const estimatedPayment = calculatePayment(dailyStats, rates)
 
   const handlePrevMonth = () => {
     if (month === 0) {
@@ -137,7 +138,7 @@ export default function HistoryPage() {
     URL.revokeObjectURL(url)
   }
 
-  if (loading || settingsLoading) {
+  if (loading || ratesLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-slate-500">読み込み中...</div>
